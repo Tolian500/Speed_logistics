@@ -2,29 +2,52 @@
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 import BackButton from '@/components/BackButton.vue';
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 
 const route = useRoute();
 const jobId = route.params.id;
 const router = useRouter();
+const toast = useToast();
+
+console.log('Component setup starting - JobView');
 
 const state = reactive({
-    jobs: {},
+    job: null,
     isLoading: true
 });
 
-onMounted(async () => {
-    try{
+const loadJobData = async () => {
+    console.log('loadJobData called with jobId:', jobId);
+    try {
+        state.isLoading = true;
+        console.log('Making API request to:', `/api/jobs/${jobId}`);
         const response = await axios.get(`/api/jobs/${jobId}`);
+        console.log('API response received:', response.data);
         state.job = response.data;
     } catch (error) {
         console.error('Error fetching job:', error);
+        toast.error('Error loading job details');
     } finally {
         state.isLoading = false;
+        console.log('Loading completed, state:', state);
     }
+};
+
+onBeforeMount(() => {
+    console.log('Before mount - JobView');
+});
+
+onMounted(() => {
+    console.log('Component mounted - JobView');
+    loadJobData();
+});
+
+onBeforeUnmount(() => {
+    console.log('Component will unmount - JobView');
 });
 
 </script>

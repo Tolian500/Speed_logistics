@@ -20,14 +20,14 @@ const router = createRouter({
             component: JobsView
         },
         {
-            path: '/jobs/:id',
-            name: 'job',
-            component: JobView
-        },
-        {
             path: '/jobs/add',
             name: 'add-job',
             component: AddJobView
+        },
+        {
+            path: '/jobs/:id',
+            name: 'job',
+            component: JobView
         },
         {
             path: '/:catchAll(.*)*',
@@ -35,6 +35,21 @@ const router = createRouter({
             component: NotFoundView
         },
     ],
+});
+
+router.beforeEach((to, from, next) => {
+    console.log('Route navigation started:', {
+        from: from.fullPath,
+        to: to.fullPath
+    });
+    next();
+});
+
+router.afterEach((to, from) => {
+    console.log('Route navigation completed:', {
+        from: from.fullPath,
+        to: to.fullPath
+    });
 });
 
 export default router;
