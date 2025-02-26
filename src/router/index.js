@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '@/views/HomeView.vue';
 import JobsView from '@/views/JobsView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import JobView from '@/views/JobView.vue';
 
 const router = createRouter({

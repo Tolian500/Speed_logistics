@@ -2,6 +2,7 @@
 import { reactive, onMounted } from 'vue';
 import TruckListing from '@/components/TruckListing.vue';
 import axios from 'axios';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 const state = reactive({
     jobs: [],
@@ -27,7 +28,12 @@ onMounted(async () => {
         <h2 class="text-3xl font-bold text-green-500 mb-6 text-center">
             Latest Truck Listings
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Loading Spinner while loading is true-->
+        <div v-if="state.isLoading" class="text-center text-gray-500">
+            <PulseLoader />
+        </div>
+        <!-- Display the jobs when loading is done-->
+        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <TruckListing v-for="job in state.jobs" :key="job.id" :job="job">
                 <h2>{{ job.title }}</h2>
             </TruckListing>
