@@ -1,3 +1,3 @@
 <template>
-  <h1>Vue Logistics</h1>
+  <h1 class="text-2xl font-bold underline">Vue Logistics</h1>
 </template>
