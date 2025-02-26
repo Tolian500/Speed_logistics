@@ -169,20 +169,6 @@
       }
     },
     {
-      "id": "269c",
-      "type": "Full-Time",
-      "title": "",
-      "description": "sag",
-      "salary": "$125K - $150K",
-      "location": "asg",
-      "company": {
-        "name": "sag",
-        "description": "sag",
-        "contactEmail": "sag@a.sl",
-        "contactPhone": "sg"
-      }
-    },
-    {
       "id": "64fb",
       "type": "Full-Time",
       "title": "",
@@ -194,34 +180,6 @@
         "description": "asg",
         "contactEmail": "asg@asg.sg",
         "contactPhone": "123123123"
-      }
-    },
-    {
-      "id": "a45f",
-      "type": "Full-Time",
-      "title": "",
-      "description": "New desc",
-      "salary": "Under $50K",
-      "location": "New Jersey",
-      "company": {
-        "name": "New comp",
-        "description": "New comp desc",
-        "contactEmail": "new@mail.com",
-        "contactPhone": "123123123"
-      }
-    },
-    {
-      "id": "4f19",
-      "type": "Full-Time",
-      "title": "",
-      "description": "sagsag",
-      "salary": "Over $200K",
-      "location": "asg",
-      "company": {
-        "name": "sag",
-        "description": "sag",
-        "contactEmail": "asg@sg.sg",
-        "contactPhone": "sagsa"
       }
     },
     {
@@ -337,32 +295,18 @@
       }
     },
     {
-      "id": "5f1c",
-      "type": "Remote",
-      "title": "sagsa",
+      "type": "Full-Time",
+      "title": "Boss job",
       "description": "sag@",
-      "salary": "Under $50K",
+      "salary": "$60K - $70K",
       "location": "asg",
       "company": {
         "name": "asg",
         "description": "asgsag",
         "contactEmail": "ag@sg.sg",
         "contactPhone": "sg"
-      }
-    },
-    {
-      "id": "8778",
-      "type": "Full-Time",
-      "title": "sag",
-      "description": "asg",
-      "salary": "$175K - $200K",
-      "location": "sag",
-      "company": {
-        "name": "asg",
-        "description": "asg",
-        "contactEmail": "asg@sg.sg",
-        "contactPhone": "sgag"
-      }
+      },
+      "id": "5f1c"
     }
   ]
 }
