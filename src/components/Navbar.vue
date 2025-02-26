@@ -60,7 +60,7 @@ const isActiveLink = (routePath) => {
                     'px-3',
                     'py-2',
                     'rounded-md']"
-                  >Add jobe</RouterLink
+                  >Add Job</RouterLink
                 >
               </div>
             </div>
