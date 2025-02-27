@@ -1,14 +1,133 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, computed } from 'vue';
+import { useToast } from 'vue-toastification';
+import axios from 'axios';
 
 const props = defineProps({
   truck: Object,
   job: Object,
 });
 
+const toast = useToast();
+
 const showRealLoadingCalendar = ref(false);
+const showRealUnloadingCalendar = ref(false);
 const selectedRealLoadingDate = ref(null);
+const selectedRealUnloadingDate = ref(null);
+
+const formatDate = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
+const parseDate = (dateStr) => {
+  if (!dateStr) return '';
+  const [day, month, year] = dateStr.split('.');
+  return `${year}-${month}-${day}`;
+};
+
+const submitRealLoadingDate = async () => {
+  if (!selectedRealLoadingDate.value) return;
+  
+  const [day, month, year] = selectedRealLoadingDate.value.split('.');
+  const isoDate = new Date(`${year}-${month}-${day}T10:00:00Z`).toISOString();
+  
+  try {
+    const isUpdate = !!props.job.realLoadingDate; // Check if date already exists
+    
+    await axios.patch(`/api/jobs/${props.job.id}`, {
+      realLoadingDate: isoDate
+    });
+    
+    // Update local state
+    props.job.realLoadingDate = isoDate;
+    showRealLoadingCalendar.value = false;
+    selectedRealLoadingDate.value = null;
+
+    // Show different messages for set vs update
+    if (isUpdate) {
+      toast.info("Loading date was successfully updated");
+    } else {
+      toast.success("Loading date was successfully set");
+    }
+  } catch (error) {
+    toast.error("Failed to update loading date");
+    console.error('Failed to update loading date:', error);
+  }
+};
+
+const submitRealUnloadingDate = async () => {
+  if (!selectedRealUnloadingDate.value) return;
+  
+  const [day, month, year] = selectedRealUnloadingDate.value.split('.');
+  const isoDate = new Date(`${year}-${month}-${day}T10:00:00Z`).toISOString();
+  
+  try {
+    const isUpdate = !!props.job.realUnloadingDate; // Check if date already exists
+    
+    await axios.patch(`/api/jobs/${props.job.id}`, {
+      realUnloadingDate: isoDate
+    });
+    
+    // Update local state
+    props.job.realUnloadingDate = isoDate;
+    showRealUnloadingCalendar.value = false;
+    selectedRealUnloadingDate.value = null;
+
+    // Show different messages for set vs update
+    if (isUpdate) {
+      toast.info("Unloading date was successfully updated");
+    } else {
+      toast.success("Unloading date was successfully set");
+    }
+  } catch (error) {
+    toast.error("Failed to update unloading date");
+    console.error('Failed to update unloading date:', error);
+  }
+};
+
+const deleteRealLoadingDate = async () => {
+  if (!confirm('Are you sure you want to delete the loading date?')) return;
+  
+  try {
+    await axios.patch(`/api/jobs/${props.job.id}`, {
+      realLoadingDate: null
+    });
+    
+    // Update local state
+    props.job.realLoadingDate = null;
+    showRealLoadingCalendar.value = false;
+    selectedRealLoadingDate.value = null;
+    toast.success("Loading date was successfully deleted");
+  } catch (error) {
+    toast.error("Failed to delete loading date");
+    console.error('Failed to delete loading date:', error);
+  }
+};
+
+const deleteRealUnloadingDate = async () => {
+  if (!confirm('Are you sure you want to delete the unloading date?')) return;
+  
+  try {
+    await axios.patch(`/api/jobs/${props.job.id}`, {
+      realUnloadingDate: null
+    });
+    
+    // Update local state
+    props.job.realUnloadingDate = null;
+    showRealUnloadingCalendar.value = false;
+    selectedRealUnloadingDate.value = null;
+    toast.success("Unloading date was successfully deleted");
+  } catch (error) {
+    toast.error("Failed to delete unloading date");
+    console.error('Failed to delete unloading date:', error);
+  }
+};
 </script>
 
 <template>
@@ -58,18 +177,32 @@ const selectedRealLoadingDate = ref(null);
               </span>
             </button>
             
-            <div v-if="showRealLoadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border right-0">
+            <div v-if="showRealLoadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border left-1/2 -translate-x-1/2">
+              <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
               <input 
                 type="date" 
-                v-model="selectedRealLoadingDate"
-                class="border rounded p-1 mb-2"
+                :value="parseDate(selectedRealLoadingDate || formatDate(job.realLoadingDate))"
+                @input="selectedRealLoadingDate = formatDate($event.target.value)"
+                class="border rounded p-1 mb-2 w-full"
               >
               <div class="flex gap-2">
                 <button 
-                  class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
-                  @click="showRealLoadingCalendar = false"
+                  :class="[
+                    job.realLoadingDate 
+                      ? 'bg-blue-500 hover:bg-blue-600' 
+                      : 'bg-green-500 hover:bg-green-600'
+                  ]"
+                  class="text-white px-3 py-1 rounded text-sm"
+                  @click="submitRealLoadingDate"
                 >
-                  Submit
+                  {{ job.realLoadingDate ? 'Update' : 'Submit' }}
+                </button>
+                <button 
+                  v-if="job.realLoadingDate"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                  @click="deleteRealLoadingDate"
+                >
+                  Delete
                 </button>
                 <button 
                   class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
@@ -90,12 +223,51 @@ const selectedRealLoadingDate = ref(null);
                 {{ job.planUnloadingDate ? new Date(job.planUnloadingDate).toLocaleDateString('de-DE') : 'Set date' }}
               </span>
             </button>
-            <button class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded">
+            <button 
+              @click="showRealUnloadingCalendar = !showRealUnloadingCalendar"
+              class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
+            >
               <span class="font-semibold">Real Unloading:</span>
               <span :class="{ 'font-bold': !job.realUnloadingDate }">
                 {{ job.realUnloadingDate ? new Date(job.realUnloadingDate).toLocaleDateString('de-DE') : 'Set date' }}
               </span>
             </button>
+
+            <div v-if="showRealUnloadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border left-1/2 -translate-x-1/2">
+              <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
+              <input 
+                type="date" 
+                :value="parseDate(selectedRealUnloadingDate || formatDate(job.realUnloadingDate))"
+                @input="selectedRealUnloadingDate = formatDate($event.target.value)"
+                class="border rounded p-1 mb-2 w-full"
+              >
+              <div class="flex gap-2">
+                <button 
+                  :class="[
+                    job.realUnloadingDate 
+                      ? 'bg-blue-500 hover:bg-blue-600' 
+                      : 'bg-green-500 hover:bg-green-600'
+                  ]"
+                  class="text-white px-3 py-1 rounded text-sm"
+                  @click="submitRealUnloadingDate"
+                >
+                  {{ job.realUnloadingDate ? 'Update' : 'Submit' }}
+                </button>
+                <button 
+                  v-if="job.realUnloadingDate"
+                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                  @click="deleteRealUnloadingDate"
+                >
+                  Delete
+                </button>
+                <button 
+                  class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+                  @click="showRealUnloadingCalendar = false"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
