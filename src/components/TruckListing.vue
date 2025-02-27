@@ -245,9 +245,11 @@ watch(unloadingModal, (newValue) => {
 
   <VueFinalModal
     v-model="loadingModal"
-    class="flex justify-center items-center"
+    class="flex justify-center items-center z-50"
     content-class="relative bg-white rounded-lg p-4 border shadow-lg w-[500px]"
-    overlay-class="bg-black bg-opacity-30"
+    overlay-class="bg-black bg-opacity-30 overflow-hidden"
+    :lock-scroll="false"
+    hide-overlay="false"
   >
     <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
     <VueDatePicker
@@ -287,9 +289,11 @@ watch(unloadingModal, (newValue) => {
 
   <VueFinalModal
     v-model="unloadingModal"
-    class="flex justify-center items-center"
+    class="flex justify-center items-center z-50"
     content-class="relative bg-white rounded-lg p-4 border shadow-lg w-[500px]"
-    overlay-class="bg-black bg-opacity-30"
+    overlay-class="bg-black bg-opacity-30 overflow-hidden"
+    :lock-scroll="false"
+    hide-overlay="false"
   >
     <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
     <VueDatePicker
