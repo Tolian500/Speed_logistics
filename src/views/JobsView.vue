@@ -1,7 +1,7 @@
 <script setup>
-import JobListings from '@/components/JobListings.vue';
+import TruckListings from '@/components/TruckListings.vue';
 </script>
 
 <template>
-  <JobListings />
+  <TruckListings />
 </template>

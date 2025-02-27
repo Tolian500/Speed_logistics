@@ -1,18 +1,11 @@
 {
-  "jobs": [
+  "trucks": [
     {
       "id": "1",
       "plateNumber": "WR008AM/NO410AC",
       "type": "Semi Trailer",
-      "startlocationCountry": "Niemcy",
-      "startlocationCity": "Munchen",
-      "destinationCountry": "Polska",
-      "destinationCity": "Krakow",
-      "client": "Horsh LTD",
-      "planLoadingDate": "2024-03-15T08:00:00Z",
-      "realLoadingDate": "2024-03-15T08:45:00Z",
-      "planUnloadingDate": "2024-03-16T14:00:00Z",
-      "realUnloadingDate":  "",
+      "currentJob": "1",
+      "nextJobQueue": ["2"],
       "company": {
         "name": "NewTek Solutions",
         "description": "NewTek Solutions is a leading technology company specializing in web development and digital solutions. We pride ourselves on delivering high-quality products and services to our clients while fostering a collaborative and innovative work environment.",
@@ -24,15 +17,8 @@
       "id": "2",
       "plateNumber": "WR008AM/NO135CD",
       "type": "Tief bet",
-      "startlocationCountry": "Niemcy",
-      "startlocationCity": "Munchen",
-      "destinationCountry": "Polska",
-      "destinationCity": "Krakow",
-      "client": "AgroPolServis",
-      "planLoadingDate": "2024-03-18T09:00:00Z",
-      "realLoadingDate":  "",
-      "planUnloadingDate": "2024-03-19T16:00:00Z",
-      "realUnloadingDate":  "",
+      "currentJob": "2",
+      "nextJobQueue": ["3"],
       "company": {
         "name": "Dolor Cloud",
         "description": "Dolor Cloud is a leading technology company specializing in digital solutions for businesses of all sizes. With a focus on innovation and customer satisfaction, we are committed to delivering cutting-edge products and services.",
@@ -44,6 +30,19 @@
       "id": "3",
       "plateNumber": "WR008AM/NO789EF",
       "type": "Box Truck",
+      "currentJob": "3",
+      "nextJobQueue": [],
+      "company": {
+        "name": "Express Transit",
+        "description": "Express Transit specializes in rapid and reliable freight transportation across Europe. Our commitment to timely delivery and customer satisfaction sets us apart in the logistics industry.",
+        "contactEmail": "contact@expresstransit.com",
+        "contactPhone": "555-555-5556"
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": "1",
       "startlocationCountry": "Polska",
       "startlocationCity": "Warszawa",
       "destinationCountry": "Czechy",
@@ -53,12 +52,36 @@
       "realLoadingDate": "",
       "planUnloadingDate": "2024-03-23T16:00:00Z",
       "realUnloadingDate": "",
-      "company": {
-        "name": "Express Transit",
-        "description": "Express Transit specializes in rapid and reliable freight transportation across Europe. Our commitment to timely delivery and customer satisfaction sets us apart in the logistics industry.",
-        "contactEmail": "contact@expresstransit.com",
-        "contactPhone": "555-555-5556"
-      }
+      "addDate": "2024-03-22T10:00:00Z",
+      "lastUpdate": "2024-03-22T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "startlocationCountry": "Niemcy",
+      "startlocationCity": "Munchen",
+      "destinationCountry": "Polska",
+      "destinationCity": "Krakow",
+      "client": "Horsh LTD",
+      "planLoadingDate": "2024-03-15T08:00:00Z",
+      "realLoadingDate": "2024-03-15T08:45:00Z",
+      "planUnloadingDate": "2024-03-16T14:00:00Z",
+      "realUnloadingDate": "",
+      "addDate": "2024-03-15T07:00:00Z",
+      "lastUpdate": "2024-03-15T08:45:00Z"
+    },
+    {
+      "id": "3",
+      "startlocationCountry": "Niemcy",
+      "startlocationCity": "Munchen",
+      "destinationCountry": "Polska",
+      "destinationCity": "Krakow",
+      "client": "AgroPolServis",
+      "planLoadingDate": "2024-03-18T09:00:00Z",
+      "realLoadingDate": "",
+      "planUnloadingDate": "2024-03-19T16:00:00Z",
+      "realUnloadingDate": "",
+      "addDate": "2024-03-17T15:00:00Z",
+      "lastUpdate": "2024-03-17T15:00:00Z"
     }
   ]
 }

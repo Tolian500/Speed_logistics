@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import JobListing from './JobListing.vue';
+import TruckListing from './TruckListing.vue';
 import { reactive, defineProps, onMounted } from 'vue';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import axios from 'axios';
@@ -14,16 +14,28 @@ defineProps({
 });
 
 const state = reactive({
+  trucks: [],
   jobs: [],
   isLoading: true,
 });
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/jobs');
-    state.jobs = response.data;
+    const [trucksResponse, jobsResponse] = await Promise.all([
+      axios.get('/api/trucks'),
+      axios.get('/api/jobs')
+    ]);
+    
+    state.trucks = trucksResponse.data;
+    state.jobs = jobsResponse.data;
+    
+    // Attach job data to each truck
+    state.trucks = state.trucks.map(truck => ({
+      ...truck,
+      currentJobData: state.jobs.find(job => job.id === truck.currentJob)
+    }));
   } catch (error) {
-    console.error('Error fetching jobs', error);
+    console.error('Error fetching data', error);
   } finally {
     state.isLoading = false;
   }
@@ -34,19 +46,20 @@ onMounted(async () => {
   <section class="bg-blue-50 px-4 py-10">
     <div class="container-xl lg:container m-auto">
       <h2 class="text-3xl font-bold text-green-500 mb-6 text-center">
-        Lista samochodów
+        Flota pojazdów
       </h2>
       <!-- Show loading spinner while loading is true -->
       <div v-if="state.isLoading" class="text-center text-gray-500 py-6">
         <PulseLoader />
       </div>
 
-      <!-- Show job listing when done loading -->
+      <!-- Show truck and job listings when done loading -->
       <div v-else class="grid grid-cols-1 gap-6">
-        <JobListing
-          v-for="job in state.jobs.slice(0, limit || state.jobs.length)"
-          :key="job.id"
-          :job="job"
+        <TruckListing
+          v-for="truck in state.trucks.slice(0, limit || state.trucks.length)"
+          :key="truck.id"
+          :truck="truck"
+          :job="truck.currentJobData"
         />
       </div>
     </div>
