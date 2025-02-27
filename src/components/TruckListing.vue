@@ -3,6 +3,8 @@ import { RouterLink } from 'vue-router';
 import { defineProps, ref, computed } from 'vue';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 const props = defineProps({
   truck: Object,
@@ -17,39 +19,25 @@ const selectedRealLoadingDate = ref(null);
 const selectedRealUnloadingDate = ref(null);
 
 const formatDate = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}.${month}.${year}`;
-};
-
-const parseDate = (dateStr) => {
-  if (!dateStr) return '';
-  const [day, month, year] = dateStr.split('.');
-  return `${year}-${month}-${day}`;
+  if (!date) return null;
+  return new Date(date);
 };
 
 const submitRealLoadingDate = async () => {
   if (!selectedRealLoadingDate.value) return;
   
-  const [day, month, year] = selectedRealLoadingDate.value.split('.');
-  const isoDate = new Date(`${year}-${month}-${day}T10:00:00Z`).toISOString();
-  
   try {
-    const isUpdate = !!props.job.realLoadingDate; // Check if date already exists
+    const isUpdate = !!props.job.realLoadingDate;
+    const isoDate = selectedRealLoadingDate.value.toISOString();
     
     await axios.patch(`/api/jobs/${props.job.id}`, {
       realLoadingDate: isoDate
     });
     
-    // Update local state
     props.job.realLoadingDate = isoDate;
     showRealLoadingCalendar.value = false;
     selectedRealLoadingDate.value = null;
 
-    // Show different messages for set vs update
     if (isUpdate) {
       toast.info("Loading date was successfully updated");
     } else {
@@ -64,22 +52,18 @@ const submitRealLoadingDate = async () => {
 const submitRealUnloadingDate = async () => {
   if (!selectedRealUnloadingDate.value) return;
   
-  const [day, month, year] = selectedRealUnloadingDate.value.split('.');
-  const isoDate = new Date(`${year}-${month}-${day}T10:00:00Z`).toISOString();
-  
   try {
-    const isUpdate = !!props.job.realUnloadingDate; // Check if date already exists
+    const isUpdate = !!props.job.realUnloadingDate;
+    const isoDate = selectedRealUnloadingDate.value.toISOString();
     
     await axios.patch(`/api/jobs/${props.job.id}`, {
       realUnloadingDate: isoDate
     });
     
-    // Update local state
     props.job.realUnloadingDate = isoDate;
     showRealUnloadingCalendar.value = false;
     selectedRealUnloadingDate.value = null;
 
-    // Show different messages for set vs update
     if (isUpdate) {
       toast.info("Unloading date was successfully updated");
     } else {
@@ -179,12 +163,14 @@ const deleteRealUnloadingDate = async () => {
             
             <div v-if="showRealLoadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border left-1/2 -translate-x-1/2">
               <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
-              <input 
-                type="date" 
-                :value="parseDate(selectedRealLoadingDate || formatDate(job.realLoadingDate))"
-                @input="selectedRealLoadingDate = formatDate($event.target.value)"
-                class="border rounded p-1 mb-2 w-full"
-              >
+              <VueDatePicker
+                v-model="selectedRealLoadingDate"
+                :model-value="selectedRealLoadingDate || formatDate(job.realLoadingDate)"
+                auto-apply
+                locale="de"
+                format="dd.MM.yyyy"
+                class="mb-2"
+              />
               <div class="flex gap-2">
                 <button 
                   :class="[
@@ -235,12 +221,14 @@ const deleteRealUnloadingDate = async () => {
 
             <div v-if="showRealUnloadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border left-1/2 -translate-x-1/2">
               <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
-              <input 
-                type="date" 
-                :value="parseDate(selectedRealUnloadingDate || formatDate(job.realUnloadingDate))"
-                @input="selectedRealUnloadingDate = formatDate($event.target.value)"
-                class="border rounded p-1 mb-2 w-full"
-              >
+              <VueDatePicker
+                v-model="selectedRealUnloadingDate"
+                :model-value="selectedRealUnloadingDate || formatDate(job.realUnloadingDate)"
+                auto-apply
+                locale="de"
+                format="dd.MM.yyyy"
+                class="mb-2"
+              />
               <div class="flex gap-2">
                 <button 
                   :class="[
@@ -298,3 +286,4 @@ const deleteRealUnloadingDate = async () => {
     </div>
   </div>
 </template>
+
