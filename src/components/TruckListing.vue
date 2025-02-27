@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineProps, ref, computed } from 'vue';
+import { defineProps, ref, computed, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -21,6 +21,21 @@ const selectedRealUnloadingDate = ref(null);
 const formatDate = (date) => {
   if (!date) return null;
   return new Date(date);
+};
+
+const formatDisplayDate = (date) => {
+  if (!date) return 'Set date';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
+const getDefaultDate = () => {
+  const today = new Date();
+  today.setHours(10, 0, 0, 0); // Set time to 10:00:00
+  return today;
 };
 
 const submitRealLoadingDate = async () => {
@@ -112,6 +127,19 @@ const deleteRealUnloadingDate = async () => {
     console.error('Failed to delete unloading date:', error);
   }
 };
+
+// Add watch to initialize dates when calendar opens
+watch(showRealLoadingCalendar, (newValue) => {
+  if (newValue) {
+    selectedRealLoadingDate.value = formatDate(props.job.realLoadingDate) || getDefaultDate();
+  }
+});
+
+watch(showRealUnloadingCalendar, (newValue) => {
+  if (newValue) {
+    selectedRealUnloadingDate.value = formatDate(props.job.realUnloadingDate) || getDefaultDate();
+  }
+});
 </script>
 
 <template>
@@ -146,18 +174,18 @@ const deleteRealUnloadingDate = async () => {
               disabled
               class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
             >
-              <span class="font-semibold">Plan Loading:</span>
+              <span class="font-semibold mr-2">Plan Loading:</span>
               <span :class="{ 'font-bold': !job.planLoadingDate }">
-                {{ job.planLoadingDate ? new Date(job.planLoadingDate).toLocaleDateString('de-DE') : 'Set date' }}
+                {{ job.planLoadingDate ? formatDisplayDate(job.planLoadingDate) : 'Set date' }}
               </span>
             </button>
             <button 
               @click="showRealLoadingCalendar = !showRealLoadingCalendar"
               class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
             >
-              <span class="font-semibold">Real Loading:</span>
+              <span class="font-semibold mr-2">Real Loading:</span>
               <span :class="{ 'font-bold': !job.realLoadingDate }">
-                {{ job.realLoadingDate ? new Date(job.realLoadingDate).toLocaleDateString('de-DE') : 'Set date' }}
+                {{ job.realLoadingDate ? formatDisplayDate(job.realLoadingDate) : 'Set date' }}
               </span>
             </button>
             
@@ -165,7 +193,6 @@ const deleteRealUnloadingDate = async () => {
               <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
               <VueDatePicker
                 v-model="selectedRealLoadingDate"
-                :model-value="selectedRealLoadingDate || formatDate(job.realLoadingDate)"
                 auto-apply
                 locale="de"
                 format="dd.MM.yyyy"
@@ -204,18 +231,18 @@ const deleteRealUnloadingDate = async () => {
               disabled
               class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
             >
-              <span class="font-semibold">Plan Unloading:</span>
+              <span class="font-semibold mr-2">Plan Unloading:</span>
               <span :class="{ 'font-bold': !job.planUnloadingDate }">
-                {{ job.planUnloadingDate ? new Date(job.planUnloadingDate).toLocaleDateString('de-DE') : 'Set date' }}
+                {{ job.planUnloadingDate ? formatDisplayDate(job.planUnloadingDate) : 'Set date' }}
               </span>
             </button>
             <button 
               @click="showRealUnloadingCalendar = !showRealUnloadingCalendar"
               class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
             >
-              <span class="font-semibold">Real Unloading:</span>
+              <span class="font-semibold mr-2">Real Unloading:</span>
               <span :class="{ 'font-bold': !job.realUnloadingDate }">
-                {{ job.realUnloadingDate ? new Date(job.realUnloadingDate).toLocaleDateString('de-DE') : 'Set date' }}
+                {{ job.realUnloadingDate ? formatDisplayDate(job.realUnloadingDate) : 'Set date' }}
               </span>
             </button>
 
@@ -223,7 +250,6 @@ const deleteRealUnloadingDate = async () => {
               <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
               <VueDatePicker
                 v-model="selectedRealUnloadingDate"
-                :model-value="selectedRealUnloadingDate || formatDate(job.realUnloadingDate)"
                 auto-apply
                 locale="de"
                 format="dd.MM.yyyy"
