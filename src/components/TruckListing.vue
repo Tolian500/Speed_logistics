@@ -243,10 +243,11 @@ watch(unloadingModal, (newValue) => {
     </div>
   </div>
 
-  <vue-final-modal
+  <VueFinalModal
     v-model="loadingModal"
-    classes="flex justify-center items-center"
-    content-class="relative bg-white rounded-lg p-4 border shadow-lg max-w-md mx-auto"
+    class="flex justify-center items-center"
+    content-class="relative bg-white rounded-lg p-4 border shadow-lg w-[500px]"
+    overlay-class="bg-black bg-opacity-30"
   >
     <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
     <VueDatePicker
@@ -282,12 +283,13 @@ watch(unloadingModal, (newValue) => {
         Cancel
       </button>
     </div>
-  </vue-final-modal>
+  </VueFinalModal>
 
-  <vue-final-modal
+  <VueFinalModal
     v-model="unloadingModal"
-    classes="flex justify-center items-center"
-    content-class="relative bg-white rounded-lg p-4 border shadow-lg max-w-md mx-auto"
+    class="flex justify-center items-center"
+    content-class="relative bg-white rounded-lg p-4 border shadow-lg w-[500px]"
+    overlay-class="bg-black bg-opacity-30"
   >
     <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
     <VueDatePicker
@@ -323,6 +325,6 @@ watch(unloadingModal, (newValue) => {
         Cancel
       </button>
     </div>
-  </vue-final-modal>
+  </VueFinalModal>
 </template>
 
