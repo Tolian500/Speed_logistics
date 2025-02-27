@@ -13,6 +13,7 @@ export default defineConfig({
     vueDevTools(),
   ],
   server: {
+    host: true,
     port: 3000,
     proxy: {
       '/api': {

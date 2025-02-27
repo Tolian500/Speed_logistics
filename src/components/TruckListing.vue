@@ -23,6 +23,9 @@ const selectedRealUnloadingDate = ref(null);
 const loadingModal = ref(false)
 const unloadingModal = ref(false)
 
+const deleteLoadingModal = ref(false)
+const deleteUnloadingModal = ref(false)
+
 const formatDate = (date) => {
   if (!date) return null;
   return new Date(date);
@@ -96,8 +99,6 @@ const submitRealUnloadingDate = async () => {
 };
 
 const deleteRealLoadingDate = async () => {
-  if (!confirm('Are you sure you want to delete the loading date?')) return;
-  
   try {
     await axios.patch(`/api/jobs/${props.job.id}`, {
       realLoadingDate: null
@@ -106,6 +107,7 @@ const deleteRealLoadingDate = async () => {
     // Update local state
     props.job.realLoadingDate = null;
     loadingModal.value = false;
+    deleteLoadingModal.value = false;
     selectedRealLoadingDate.value = null;
     toast.success("Loading date was successfully deleted");
   } catch (error) {
@@ -115,8 +117,6 @@ const deleteRealLoadingDate = async () => {
 };
 
 const deleteRealUnloadingDate = async () => {
-  if (!confirm('Are you sure you want to delete the unloading date?')) return;
-  
   try {
     await axios.patch(`/api/jobs/${props.job.id}`, {
       realUnloadingDate: null
@@ -125,6 +125,7 @@ const deleteRealUnloadingDate = async () => {
     // Update local state
     props.job.realUnloadingDate = null;
     unloadingModal.value = false;
+    deleteUnloadingModal.value = false;
     selectedRealUnloadingDate.value = null;
     toast.success("Unloading date was successfully deleted");
   } catch (error) {
@@ -274,7 +275,7 @@ watch(unloadingModal, (newValue) => {
       <button 
         v-if="job.realLoadingDate"
         class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-        @click="deleteRealLoadingDate"
+        @click="deleteLoadingModal = true"
       >
         Delete
       </button>
@@ -318,7 +319,7 @@ watch(unloadingModal, (newValue) => {
       <button 
         v-if="job.realUnloadingDate"
         class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-        @click="deleteRealUnloadingDate"
+        @click="deleteUnloadingModal = true"
       >
         Delete
       </button>
@@ -328,6 +329,62 @@ watch(unloadingModal, (newValue) => {
       >
         Cancel
       </button>
+    </div>
+  </VueFinalModal>
+
+  <!-- Loading delete confirmation modal -->
+  <VueFinalModal
+    v-model="deleteLoadingModal"
+    class="flex justify-end items-end sm:items-center z-50"
+    content-class="relative bg-white rounded-t-lg sm:rounded-lg p-4 border shadow-lg w-full sm:w-[500px] mx-auto"
+    overlay-class="bg-black bg-opacity-30"
+    :lock-scroll="false"
+  >
+    <div class="text-center">
+      <h3 class="text-lg font-medium mb-4">Delete Loading Date?</h3>
+      <p class="text-gray-500 mb-4">Are you sure you want to delete the loading date?</p>
+      <div class="flex gap-2 justify-center">
+        <button 
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+          @click="deleteRealLoadingDate"
+        >
+          Delete
+        </button>
+        <button 
+          class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+          @click="deleteLoadingModal = false"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </VueFinalModal>
+
+  <!-- Unloading delete confirmation modal -->
+  <VueFinalModal
+    v-model="deleteUnloadingModal"
+    class="flex justify-end items-end sm:items-center z-50"
+    content-class="relative bg-white rounded-t-lg sm:rounded-lg p-4 border shadow-lg w-full sm:w-[500px] mx-auto"
+    overlay-class="bg-black bg-opacity-30"
+    :lock-scroll="false"
+  >
+    <div class="text-center">
+      <h3 class="text-lg font-medium mb-4">Delete Unloading Date?</h3>
+      <p class="text-gray-500 mb-4">Are you sure you want to delete the unloading date?</p>
+      <div class="flex gap-2 justify-center">
+        <button 
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+          @click="deleteRealUnloadingDate"
+        >
+          Delete
+        </button>
+        <button 
+          class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+          @click="deleteUnloadingModal = false"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   </VueFinalModal>
 </template>
