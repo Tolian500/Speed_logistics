@@ -5,6 +5,8 @@ import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
+import { VueFinalModal } from 'vue-final-modal'
+import 'vue-final-modal/style.css'
 
 const props = defineProps({
   truck: Object,
@@ -17,6 +19,9 @@ const showRealLoadingCalendar = ref(false);
 const showRealUnloadingCalendar = ref(false);
 const selectedRealLoadingDate = ref(null);
 const selectedRealUnloadingDate = ref(null);
+
+const loadingModal = ref(false)
+const unloadingModal = ref(false)
 
 const formatDate = (date) => {
   if (!date) return null;
@@ -50,7 +55,7 @@ const submitRealLoadingDate = async () => {
     });
     
     props.job.realLoadingDate = isoDate;
-    showRealLoadingCalendar.value = false;
+    loadingModal.value = false;
     selectedRealLoadingDate.value = null;
 
     if (isUpdate) {
@@ -76,7 +81,7 @@ const submitRealUnloadingDate = async () => {
     });
     
     props.job.realUnloadingDate = isoDate;
-    showRealUnloadingCalendar.value = false;
+    unloadingModal.value = false;
     selectedRealUnloadingDate.value = null;
 
     if (isUpdate) {
@@ -100,7 +105,7 @@ const deleteRealLoadingDate = async () => {
     
     // Update local state
     props.job.realLoadingDate = null;
-    showRealLoadingCalendar.value = false;
+    loadingModal.value = false;
     selectedRealLoadingDate.value = null;
     toast.success("Loading date was successfully deleted");
   } catch (error) {
@@ -119,7 +124,7 @@ const deleteRealUnloadingDate = async () => {
     
     // Update local state
     props.job.realUnloadingDate = null;
-    showRealUnloadingCalendar.value = false;
+    unloadingModal.value = false;
     selectedRealUnloadingDate.value = null;
     toast.success("Unloading date was successfully deleted");
   } catch (error) {
@@ -128,14 +133,14 @@ const deleteRealUnloadingDate = async () => {
   }
 };
 
-// Add watch to initialize dates when calendar opens
-watch(showRealLoadingCalendar, (newValue) => {
+// Replace the watch blocks with these new ones
+watch(loadingModal, (newValue) => {
   if (newValue) {
     selectedRealLoadingDate.value = formatDate(props.job.realLoadingDate) || getDefaultDate();
   }
 });
 
-watch(showRealUnloadingCalendar, (newValue) => {
+watch(unloadingModal, (newValue) => {
   if (newValue) {
     selectedRealUnloadingDate.value = formatDate(props.job.realUnloadingDate) || getDefaultDate();
   }
@@ -180,7 +185,7 @@ watch(showRealUnloadingCalendar, (newValue) => {
               </span>
             </button>
             <button 
-              @click="showRealLoadingCalendar = !showRealLoadingCalendar"
+              @click="loadingModal = true"
               class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
             >
               <span class="font-semibold mr-2">Real Loading:</span>
@@ -188,43 +193,6 @@ watch(showRealUnloadingCalendar, (newValue) => {
                 {{ job.realLoadingDate ? formatDisplayDate(job.realLoadingDate) : 'Set date' }}
               </span>
             </button>
-            
-            <div v-if="showRealLoadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border left-1/2 -translate-x-1/2">
-              <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
-              <VueDatePicker
-                v-model="selectedRealLoadingDate"
-                auto-apply
-                locale="de"
-                format="dd.MM.yyyy"
-                class="mb-2"
-              />
-              <div class="flex gap-2">
-                <button 
-                  :class="[
-                    job.realLoadingDate 
-                      ? 'bg-blue-500 hover:bg-blue-600' 
-                      : 'bg-green-500 hover:bg-green-600'
-                  ]"
-                  class="text-white px-3 py-1 rounded text-sm"
-                  @click="submitRealLoadingDate"
-                >
-                  {{ job.realLoadingDate ? 'Update' : 'Submit' }}
-                </button>
-                <button 
-                  v-if="job.realLoadingDate"
-                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                  @click="deleteRealLoadingDate"
-                >
-                  Delete
-                </button>
-                <button 
-                  class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
-                  @click="showRealLoadingCalendar = false"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
           </div>
           <div class="flex flex-col">
             <button 
@@ -237,7 +205,7 @@ watch(showRealUnloadingCalendar, (newValue) => {
               </span>
             </button>
             <button 
-              @click="showRealUnloadingCalendar = !showRealUnloadingCalendar"
+              @click="unloadingModal = true"
               class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
             >
               <span class="font-semibold mr-2">Real Unloading:</span>
@@ -245,43 +213,6 @@ watch(showRealUnloadingCalendar, (newValue) => {
                 {{ job.realUnloadingDate ? formatDisplayDate(job.realUnloadingDate) : 'Set date' }}
               </span>
             </button>
-
-            <div v-if="showRealUnloadingCalendar" class="absolute z-10 mt-1 bg-white shadow-lg rounded-lg p-2 border left-1/2 -translate-x-1/2">
-              <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
-              <VueDatePicker
-                v-model="selectedRealUnloadingDate"
-                auto-apply
-                locale="de"
-                format="dd.MM.yyyy"
-                class="mb-2"
-              />
-              <div class="flex gap-2">
-                <button 
-                  :class="[
-                    job.realUnloadingDate 
-                      ? 'bg-blue-500 hover:bg-blue-600' 
-                      : 'bg-green-500 hover:bg-green-600'
-                  ]"
-                  class="text-white px-3 py-1 rounded text-sm"
-                  @click="submitRealUnloadingDate"
-                >
-                  {{ job.realUnloadingDate ? 'Update' : 'Submit' }}
-                </button>
-                <button 
-                  v-if="job.realUnloadingDate"
-                  class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                  @click="deleteRealUnloadingDate"
-                >
-                  Delete
-                </button>
-                <button 
-                  class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
-                  @click="showRealUnloadingCalendar = false"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -311,5 +242,87 @@ watch(showRealUnloadingCalendar, (newValue) => {
       </div>
     </div>
   </div>
+
+  <vue-final-modal
+    v-model="loadingModal"
+    classes="flex justify-center items-center"
+    content-class="relative bg-white rounded-lg p-4 border shadow-lg max-w-md mx-auto"
+  >
+    <div class="text-sm font-semibold text-gray-700 mb-2">Set load date</div>
+    <VueDatePicker
+      v-model="selectedRealLoadingDate"
+      auto-apply
+      locale="de"
+      format="dd.MM.yyyy"
+      class="mb-2"
+    />
+    <div class="flex gap-2">
+      <button 
+        :class="[
+          job.realLoadingDate 
+            ? 'bg-blue-500 hover:bg-blue-600' 
+            : 'bg-green-500 hover:bg-green-600'
+        ]"
+        class="text-white px-3 py-1 rounded text-sm"
+        @click="submitRealLoadingDate"
+      >
+        {{ job.realLoadingDate ? 'Update' : 'Submit' }}
+      </button>
+      <button 
+        v-if="job.realLoadingDate"
+        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+        @click="deleteRealLoadingDate"
+      >
+        Delete
+      </button>
+      <button 
+        class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+        @click="loadingModal = false"
+      >
+        Cancel
+      </button>
+    </div>
+  </vue-final-modal>
+
+  <vue-final-modal
+    v-model="unloadingModal"
+    classes="flex justify-center items-center"
+    content-class="relative bg-white rounded-lg p-4 border shadow-lg max-w-md mx-auto"
+  >
+    <div class="text-sm font-semibold text-gray-700 mb-2">Set unload date</div>
+    <VueDatePicker
+      v-model="selectedRealUnloadingDate"
+      auto-apply
+      locale="de"
+      format="dd.MM.yyyy"
+      class="mb-2"
+    />
+    <div class="flex gap-2">
+      <button 
+        :class="[
+          job.realUnloadingDate 
+            ? 'bg-blue-500 hover:bg-blue-600' 
+            : 'bg-green-500 hover:bg-green-600'
+        ]"
+        class="text-white px-3 py-1 rounded text-sm"
+        @click="submitRealUnloadingDate"
+      >
+        {{ job.realUnloadingDate ? 'Update' : 'Submit' }}
+      </button>
+      <button 
+        v-if="job.realUnloadingDate"
+        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+        @click="deleteRealUnloadingDate"
+      >
+        Delete
+      </button>
+      <button 
+        class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+        @click="unloadingModal = false"
+      >
+        Cancel
+      </button>
+    </div>
+  </vue-final-modal>
 </template>
 
