@@ -39,6 +39,15 @@ const formatDateOnly = (date) => {
   const year = d.getFullYear();
   return `${day}.${month}.${year}`;
 };
+
+// New function for short date format (dd.mm only)
+const formatDateShort = (date) => {
+  if (!date) return 'Not set';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${day}.${month}`;
+};
 </script>
 
 <template>
@@ -53,34 +62,98 @@ const formatDateOnly = (date) => {
         'bg-gray-300': job.realLoadingDate && job.realLoadingDate.length && job.realUnloadingDate && job.realUnloadingDate.length
       }"
     >
-      <div class="p-4">
-        <!-- Short Version - Always Visible -->
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="text-xl font-bold text-green-600">{{ job.client }}</h3>
-            <div class="text-sm text-gray-600 mt-1 flex items-center gap-4">
-              <div class="flex items-center gap-1">
-                <i class="pi pi-arrow-down text-blue-500"></i>
-                <span :class="{ 'font-bold': job.isLoadingDateStrict }">
-                  {{ formatDateOnly(job.planLoadingDate) }}
-                  {{ job.isLoadingDateStrict ? '❗' : '' }}
-                </span>
-              </div>
-              <div class="flex items-center gap-1">
-                <i class="pi pi-arrow-up text-green-500"></i>
-                <span :class="{ 'font-bold': job.isUnloadingDateStrict }">
-                  {{ formatDateOnly(job.planUnloadingDate) }}
-                  {{ job.isUnloadingDateStrict ? '❗' : '' }}
-                </span>
-              </div>
+      <div class="p-2"> <!-- card padding -->
+        <!-- Desktop Layout (md and up) - Single line -->
+        <div class="hidden md:grid grid-cols-12 gap-2 items-center">
+          <!-- First column: Loading date (fixed width) -->
+          <div class="col-span-2 flex items-center">
+            <i class="pi pi-arrow-down text-blue-500 mr-1 flex-shrink-0"></i>
+            <span :class="{ 'font-bold': job.isLoadingDateStrict }" class="text-xs whitespace-nowrap">
+              {{ formatDateShort(job.planLoadingDate) }}
+              {{ job.isLoadingDateStrict ? '❗' : '' }}
+            </span>
+          </div>
+          
+          <!-- Second column: Unloading date (fixed width) -->
+          <div class="col-span-2 flex items-center">
+            <i class="pi pi-arrow-up text-green-500 mr-1 flex-shrink-0"></i>
+            <span :class="{ 'font-bold': job.isUnloadingDateStrict }" class="text-xs whitespace-nowrap">
+              {{ formatDateShort(job.planUnloadingDate) }}
+              {{ job.isUnloadingDateStrict ? '❗' : '' }}
+            </span>
+          </div>
+          
+          <!-- Third column: Client name (fixed width) -->
+          <div class="col-span-3">
+            <h3 class="text-sm font-bold text-green-600 truncate">
+              {{ job.client.length > 12 ? job.client.substring(0, 12) + '...' : job.client }}
+            </h3>
+          </div>
+          
+          <!-- Fourth column: Locations (flexible width) -->
+          <div class="col-span-4 flex items-center text-xs text-gray-600">
+            <span class="truncate max-w-[45%]">{{ job.startlocationCity }}</span>
+            <i class="pi pi-arrow-right text-xs mx-1 flex-shrink-0"></i>
+            <span class="truncate max-w-[45%]">{{ job.destinationCity }}</span>
+          </div>
+          
+          <!-- Fifth column: Expand/Collapse button -->
+          <div class="col-span-1 flex justify-end">
+            <i 
+              :class="[
+                showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
+                'text-blue-500 text-xl transition-transform'
+              ]"
+            ></i>
+          </div>
+        </div>
+        
+        <!-- Mobile Layout (sm and down) - Two lines -->
+        <div class="md:hidden">
+          <!-- First row: Dates, Client, and Button -->
+          <div class="grid grid-cols-12 gap-1 items-center">
+            <!-- First column: Loading date (fixed width) -->
+            <div class="col-span-3 flex items-center">
+              <i class="pi pi-arrow-down text-blue-500 mr-1 flex-shrink-0"></i>
+              <span :class="{ 'font-bold': job.isLoadingDateStrict }" class="text-xs whitespace-nowrap">
+                {{ formatDateShort(job.planLoadingDate) }}
+                {{ job.isLoadingDateStrict ? '❗' : '' }}
+              </span>
+            </div>
+            
+            <!-- Second column: Unloading date (fixed width) -->
+            <div class="col-span-3 flex items-center">
+              <i class="pi pi-arrow-up text-green-500 mr-1 flex-shrink-0"></i>
+              <span :class="{ 'font-bold': job.isUnloadingDateStrict }" class="text-xs whitespace-nowrap">
+                {{ formatDateShort(job.planUnloadingDate) }}
+                {{ job.isUnloadingDateStrict ? '❗' : '' }}
+              </span>
+            </div>
+            
+            <!-- Third column: Client name (fixed width) -->
+            <div class="col-span-5">
+              <h3 class="text-sm font-bold text-green-600 truncate">
+                {{ job.client.length > 10 ? job.client.substring(0, 10) + '...' : job.client }}
+              </h3>
+            </div>
+            
+            <!-- Fourth column: Expand/Collapse button -->
+            <div class="col-span-1 flex justify-end">
+              <i 
+                :class="[
+                  showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
+                  'text-blue-500 text-xl transition-transform'
+                ]"
+              ></i>
             </div>
           </div>
-          <i 
-            :class="[
-              showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
-              'text-blue-500 text-xl transition-transform'
-            ]"
-          ></i>
+          
+          <!-- Second row: Locations only -->
+          <div class="mt-1 flex items-center text-xs text-gray-600">
+            <span class="truncate max-w-[45%]">{{ job.startlocationCity }}</span>
+            <i class="pi pi-arrow-right text-xs mx-1 flex-shrink-0"></i>
+            <span class="truncate max-w-[45%]">{{ job.destinationCity }}</span>
+          </div>
         </div>
 
         <!-- Extended Details - Shown when showDetails is true -->
@@ -110,7 +183,7 @@ const formatDateOnly = (date) => {
                     <span class="font-semibold">Real Loading:</span>
                   </div>
                   <div :class="{ 'text-gray-600': !job.realLoadingDate }">
-                    {{ job.realLoadingDate ? formatDateOnly(job.realLoadingDate) : 'Pending' }}
+                    {{ job.realLoadingDate ? formatDateShort(job.realLoadingDate) : 'Pending' }}
                   </div>
                 </div>
               </div>
@@ -121,7 +194,7 @@ const formatDateOnly = (date) => {
                     <span class="font-semibold">Real Unloading:</span>
                   </div>
                   <div :class="{ 'text-gray-600': !job.realUnloadingDate }">
-                    {{ job.realUnloadingDate ? formatDateOnly(job.realUnloadingDate) : 'Pending' }}
+                    {{ job.realUnloadingDate ? formatDateShort(job.realUnloadingDate) : 'Pending' }}
                   </div>
                 </div>
               </div>
@@ -145,7 +218,7 @@ const formatDateOnly = (date) => {
             <!-- Footer -->
             <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
               <div class="text-xs text-gray-500">
-                Added: {{ formatDateOnly(job.addDate) }}
+                Added: {{ formatDateShort(job.addDate) }}
               </div>
               <RouterLink
                 :to="'/jobs/' + job.id"
