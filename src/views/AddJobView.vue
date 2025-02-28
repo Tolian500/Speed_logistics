@@ -18,7 +18,9 @@ const form = reactive({
       planUnloadingDate: "",
       realUnloadingDate: "",
       addDate: "",
-      lastUpdate: ""
+      lastUpdate: "",
+      isLoadingDateStrict: false,
+      isUnloadingDateStrict: false,
 });
 
 const toast = useToast();
@@ -44,8 +46,10 @@ const handleSubmit = async () => {
     cargoName: form.cargoName,
     cargoDescription: form.cargoDescription,
     planLoadingDate: formatDateWithDefaultTime(form.planLoadingDate, true),
+    isLoadingDateStrict: form.isLoadingDateStrict,
     realLoadingDate: form.realLoadingDate,
     planUnloadingDate: formatDateWithDefaultTime(form.planUnloadingDate, false),
+    isUnloadingDateStrict: form.isUnloadingDateStrict,
     realUnloadingDate: form.realUnloadingDate,
     addDate: new Date().toISOString(),
     lastUpdate: new Date().toISOString()
@@ -171,28 +175,48 @@ const handleSubmit = async () => {
 
           <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Planned Loading Date</label>
-            <input
-              type="date"
-              v-model="form.planLoadingDate"
-              id="planLoadingDate"
-              name="planLoadingDate"
-              class="border rounded w-full py-2 px-3"
-              required
-            />
-            <!-- <span class="text-sm text-gray-500 mt-1">Loading time will be set to 8:00 AM</span> -->
+            <div class="flex items-center gap-4">
+              <input
+                type="date"
+                v-model="form.planLoadingDate"
+                id="planLoadingDate"
+                name="planLoadingDate"
+                class="border rounded w-full py-2 px-3"
+                required
+              />
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  v-model="form.isLoadingDateStrict"
+                  id="isLoadingDateStrict"
+                  class="w-8 h-8 text-green-600 rounded"
+                />
+                <label for="isLoadingDateStrict" class="text-sm text-black font-bold">Strict date❗</label>
+              </div>
+            </div>
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Planned Unloading Date</label>
-            <input
-              type="date"
-              v-model="form.planUnloadingDate"
-              id="planUnloadingDate"
-              name="planUnloadingDate"
-              class="border rounded w-full py-2 px-3"
-              required
-            />
-            <!-- <span class="text-sm text-gray-500 mt-1">Unloading time will be set to 4:00 PM</span> -->
+            <div class="flex items-center gap-4">
+              <input
+                type="date"
+                v-model="form.planUnloadingDate"
+                id="planUnloadingDate"
+                name="planUnloadingDate"
+                class="border rounded w-full py-2 px-3"
+                required
+              />
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  v-model="form.isUnloadingDateStrict"
+                  id="isUnloadingDateStrict"
+                  class="w-8 h-8 text-green-600 rounded"
+                />
+                <label for="isUnloadingDateStrict" class="text-sm text-black font-bold">Strict date❗</label>
+              </div>
+            </div>
           </div>
 
           <div>

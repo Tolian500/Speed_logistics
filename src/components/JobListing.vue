@@ -43,17 +43,17 @@ const formatDateOnly = (date) => {
 
 <template>
   <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-    <!-- Job Listing Card -->
+    <!-- Job Listing Card - Entire card is clickable -->
     <div 
-      class="rounded-xl shadow-md relative"
+      @click="toggleDetails"
+      class="rounded-xl shadow-md relative cursor-pointer hover:shadow-lg transition-shadow"
       :class="{
-        'bg-white': !job.realLoadingDate,
-        'bg-green-100': job.realLoadingDate && !job.realUnloadingDate,
-        'bg-gray-300': job.realLoadingDate && job.realUnloadingDate
+        'bg-white': !job.realLoadingDate || !job.realLoadingDate.length,
+        'bg-green-100': job.realLoadingDate && job.realLoadingDate.length && (!job.realUnloadingDate || !job.realUnloadingDate.length),
+        'bg-gray-300': job.realLoadingDate && job.realLoadingDate.length && job.realUnloadingDate && job.realUnloadingDate.length
       }"
     >
-      
-      <div class="p-4 ">
+      <div class="p-4">
         <!-- Short Version - Always Visible -->
         <div class="flex justify-between items-center">
           <div>
@@ -61,21 +61,26 @@ const formatDateOnly = (date) => {
             <div class="text-sm text-gray-600 mt-1 flex items-center gap-4">
               <div class="flex items-center gap-1">
                 <i class="pi pi-arrow-down text-blue-500"></i>
-                {{ formatDateOnly(job.planLoadingDate) }}
+                <span :class="{ 'font-bold': job.isLoadingDateStrict }">
+                  {{ formatDateOnly(job.planLoadingDate) }}
+                  {{ job.isLoadingDateStrict ? '❗' : '' }}
+                </span>
               </div>
               <div class="flex items-center gap-1">
                 <i class="pi pi-arrow-up text-green-500"></i>
-                {{ formatDateOnly(job.planUnloadingDate) }}
+                <span :class="{ 'font-bold': job.isUnloadingDateStrict }">
+                  {{ formatDateOnly(job.planUnloadingDate) }}
+                  {{ job.isUnloadingDateStrict ? '❗' : '' }}
+                </span>
               </div>
             </div>
           </div>
-          <button
-            @click="toggleDetails"
-            class="text-blue-500 hover:text-blue-600 text-sm flex items-center gap-1"
-          >
-            {{ showDetails ? 'Show Less' : 'Show More' }}
-            <i :class="showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-          </button>
+          <i 
+            :class="[
+              showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
+              'text-blue-500 text-xl transition-transform'
+            ]"
+          ></i>
         </div>
 
         <!-- Extended Details - Shown when showDetails is true -->
@@ -146,6 +151,7 @@ const formatDateOnly = (date) => {
               <RouterLink
                 :to="'/jobs/' + job.id"
                 class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+                @click.stop
               >
                 Job Details
               </RouterLink>
