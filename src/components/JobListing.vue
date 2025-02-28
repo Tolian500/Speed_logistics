@@ -87,10 +87,9 @@ const formatDateOnly = (date) => {
         <div v-if="showDetails" class="mt-1">
           <div class="border-t border-gray-100 pt-1">
             <!-- Job Type and ID -->
-            <div class="mb-2">
-              <span class="text-sm text-gray-500 mr-2">ID: {{ job.id }}</span>
+            <div class="mb-2 flex justify-between items-center">
               <span class="text-gray-600">{{ job.type }}</span>
-
+              <span class="text-sm text-gray-500">ID: {{ job.id }}</span>
             </div>
 
             <!-- Cargo Information -->
