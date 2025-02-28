@@ -41,6 +41,14 @@ const formatDisplayDate = (date) => {
   return `${day}.${month}.${year}`;
 };
 
+const formatDisplayDateShort = (date) => {
+  if (!date) return 'Set date';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${day}.${month}`;
+};
+
 const getDefaultDate = () => {
   const today = new Date();
   today.setHours(10, 0, 0, 0); // Set time to 10:00:00
@@ -156,7 +164,6 @@ const toggleDetails = () => {
 <style scoped>
 .card-container {
   position: relative;
-  margin-bottom: 10px;
 }
 
 .main-card {
@@ -186,11 +193,11 @@ const toggleDetails = () => {
     >
       <div class="p-3">
         <!-- Short Version - Always Visible -->
-        <div class="flex justify-between">
-          <div class="flex flex-col gap-2">
+        <div class="flex justify-between items-start">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 flex-1 min-w-0">
             <!-- Truck Info -->
             <div class="flex items-center gap-2">
-              <h3 class="text-l font-bold">{{ truck.plateNumber }}</h3>
+              <h3 class="text-l font-bold truncate">{{ truck.plateNumber }}</h3>
               <template v-if="job && !job.realLoadingDate && !job.realUnloadingDate">
                 <i class="pi pi-caret-right text-yellow-500"></i>
               </template>
@@ -207,16 +214,16 @@ const toggleDetails = () => {
             </div>
             
             <!-- Job Info (if exists) -->
-            <div v-if="job" class="flex items-center text-sm relative pr-24">
-              <div class="flex items-center gap-4">
-                <span class="text-green-600 font-medium">{{ job.client }}</span>
-                <div class="flex items-center gap-2 text-gray-600">
-                  <span>{{ job.startlocationCity }}</span>
-                  <i class="pi pi-arrow-right text-xs"></i>
-                  <span>{{ job.destinationCity }}</span>
+            <div v-if="job" class="flex items-center text-sm relative min-w-0 flex-1">
+              <div class="flex items-center gap-4 flex-1 min-w-0 sm:pr-20 pr-16">
+                <span class="text-green-600 font-medium truncate">{{ job.client }}</span>
+                <div class="flex items-center gap-2 text-gray-600 truncate">
+                  <span class="truncate">{{ job.startlocationCity }}</span>
+                  <i class="pi pi-arrow-right text-xs flex-shrink-0"></i>
+                  <span class="truncate">{{ job.destinationCity }}</span>
                 </div>
               </div>
-              <span class="text-gray-500 font-medium absolute right-0">
+              <span class="text-gray-500 font-medium absolute right-0 whitespace-nowrap">
                 {{ job.realLoadingDate ? formatDate(job.realLoadingDate).getDate().toString().padStart(2, '0') + '.' + (formatDate(job.realLoadingDate).getMonth() + 1).toString().padStart(2, '0') : 
                    formatDate(job.planLoadingDate).getDate().toString().padStart(2, '0') + '.' + (formatDate(job.planLoadingDate).getMonth() + 1).toString().padStart(2, '0') }}
               </span>
@@ -225,24 +232,24 @@ const toggleDetails = () => {
           <i 
             :class="[
               showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
-              'text-blue-500 text-xl transition-transform'
+              'text-blue-500 text-xl transition-transform flex-shrink-0 ml-2'
             ]"
           ></i>
         </div>
 
         <!-- Extended Details - Shown when showDetails is true -->
-        <div v-if="showDetails" class="mt-4">
-          <div class="border-t border-gray-100 pt-4">
+        <div v-if="showDetails" class="mt-3">
+          <div class="border-t border-gray-100 pt-2">
             <!-- Truck Info Section -->
-            <div class="mb-4">
+            <div class="mb-2">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <div class="text-gray-600">{{ truck.type }}</div>
+                  <div class="text-gray-600 text-xs">{{ truck.type }}</div>
                 </div>
                 <RouterLink
                   v-if="job"
                   :to="'/jobs/' + job.id"
-                  class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                  class="bg-green-500 hover:bg-green-600 text-white px-2 py-0.5 rounded text-xs"
                   @click.stop
                 >
                   Details
@@ -252,67 +259,71 @@ const toggleDetails = () => {
 
             <!-- Current Job Info Section -->
             <div v-if="job">
-              <h3 class="text-green-500 mb-2">Current job: {{ job.client }}</h3>
+              <h3 class="text-green-500 mb-2 text-sm">{{ job.client }}</h3>
 
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="flex flex-col">
+              <div class="grid grid-cols-2 gap-4 mb-3">
+                <div class="flex flex-col gap-1">
                   <button 
                     disabled
-                    class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
+                    class="text-sm text-gray-400 p-2 rounded cursor-not-allowed flex items-center"
                   >
-                    <span class="font-semibold mr-2">Plan Loading:</span>
+                    <span class="font-semibold mr-1">Plan</span>
+                    <i class="pi pi-arrow-down text-xs mr-2 text-blue-500"></i>
                     <span :class="{ 'font-bold': !job.planLoadingDate }">
-                      {{ job.planLoadingDate ? formatDisplayDate(job.planLoadingDate) : 'Set date' }}
+                      {{ job.planLoadingDate ? formatDisplayDateShort(job.planLoadingDate) : 'Set date' }}
                     </span>
                   </button>
                   <button 
                     @click.stop="loadingModal = true"
-                    class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
+                    class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded flex items-center"
                   >
-                    <span class="font-semibold mr-2">Real Loading:</span>
+                    <span class="font-semibold mr-1">Real</span>
+                    <i class="pi pi-arrow-down text-xs mr-2 text-blue-500"></i>
                     <span :class="{ 'font-bold': !job.realLoadingDate }">
-                      {{ job.realLoadingDate ? formatDisplayDate(job.realLoadingDate) : 'Set date' }}
+                      {{ job.realLoadingDate ? formatDisplayDateShort(job.realLoadingDate) : 'Set date' }}
                     </span>
                   </button>
                 </div>
-                <div class="flex flex-col">
+                <div class="flex flex-col gap-1">
                   <button 
                     disabled
-                    class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
+                    class="text-sm text-gray-400 p-2 rounded cursor-not-allowed flex items-center"
                   >
-                    <span class="font-semibold mr-2">Plan Unloading:</span>
+                    <span class="font-semibold mr-1">Plan</span>
+                    <i class="pi pi-arrow-up text-xs mr-2 text-green-500"></i>
                     <span :class="{ 'font-bold': !job.planUnloadingDate }">
-                      {{ job.planUnloadingDate ? formatDisplayDate(job.planUnloadingDate) : 'Set date' }}
+                      {{ job.planUnloadingDate ? formatDisplayDateShort(job.planUnloadingDate) : 'Set date' }}
                     </span>
                   </button>
                   <button 
                     @click.stop="unloadingModal = true"
-                    class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
+                    class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded flex items-center"
                   >
-                    <span class="font-semibold mr-2">Real Unloading:</span>
+                    <span class="font-semibold mr-1">Real</span>
+                    <i class="pi pi-arrow-up text-xs mr-2 text-green-500"></i>
                     <span :class="{ 'font-bold': !job.realUnloadingDate }">
-                      {{ job.realUnloadingDate ? formatDisplayDate(job.realUnloadingDate) : 'Set date' }}
+                      {{ job.realUnloadingDate ? formatDisplayDateShort(job.realUnloadingDate) : 'Set date' }}
                     </span>
                   </button>
                 </div>
               </div>
 
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between mb-2 text-xs">
                 <div class="text-orange-700 flex items-center">
                   <template v-if="!job.realLoadingDate">
-                    <i class="pi pi-forward text-orange-700 mr-2"></i>
+                    <i class="pi pi-forward text-orange-700 mr-1"></i>
                   </template>
-                  <i class="pi pi-map-marker text-orange-700"></i>
-                  {{ job.startlocationCountry }} {{ job.startlocationCity }} 
+                  <i class="pi pi-map-marker text-orange-700 mr-1"></i>
+                  <span class="truncate">{{ job.startlocationCountry }} {{ job.startlocationCity }}</span>
                 </div>
                 <template v-if="job.realLoadingDate">
-                  <div class="text-orange-700 mx-2">
+                  <div class="text-orange-700 mx-1">
                     <i class="pi pi-forward text-orange-700"></i>
                   </div>
                 </template>
-                <div class="text-orange-700">
-                  <i class="pi pi-map-marker text-orange-700"></i>
-                  {{ job.destinationCountry }} {{ job.destinationCity }} 
+                <div class="text-orange-700 flex items-center">
+                  <i class="pi pi-map-marker text-orange-700 mr-1"></i>
+                  <span class="truncate">{{ job.destinationCountry }} {{ job.destinationCity }}</span>
                 </div>
               </div>
             </div>
