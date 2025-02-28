@@ -258,10 +258,11 @@ const jobStatus = computed(() => {
                 v-if="jobStatus" 
                 class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
                 :class="{
-                  'bg-purple-500': jobStatus === 'assigned',
-                  'bg-orange-500': jobStatus === 'doing',
-                  'bg-green-500': jobStatus === 'completed' || jobStatus === 'done',
-                  'bg-red-500': jobStatus === 'cancelled'
+                  'bg-green-300': jobStatus === 'assigned',
+                'bg-green-500': jobStatus === 'doing',
+                'bg-gray-500': jobStatus === 'completed' || jobStatus === 'done',
+                'bg-yellow-300': jobStatus === 'pending',
+                'bg-red-500': jobStatus === 'cancelled'
                 }"
               ></div>
               <h3 class="text-sm font-bold text-green-600 truncate">
