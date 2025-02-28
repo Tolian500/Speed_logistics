@@ -4,10 +4,8 @@
       "id": "1",
       "plateNumber": "CTR31250/NO9088R",
       "type": "Semi Trailer",
-      "currentJob": "1",
-      "nextJobQueue": [
-        "2"
-      ],
+      "currentJob": null,
+      "nextJobQueue": [],
       "company": {
         "name": "NewTek Solutions",
         "description": "NewTek Solutions is a leading technology company specializing in web development and digital solutions. We pride ourselves on delivering high-quality products and services to our clients while fostering a collaborative and innovative work environment.",
@@ -36,7 +34,7 @@
       "id": "3",
       "plateNumber": "NO9319X/NO8225X",
       "type": "Box Truck",
-      "currentJob": "3",
+      "currentJob": null,
       "nextJobQueue": [],
       "company": {
         "name": "Express Transit",
@@ -81,6 +79,7 @@
       "type": "Curtainsider",
       "currentJob": "6",
       "nextJobQueue": [
+        "3",
         "9"
       ],
       "company": {
@@ -95,7 +94,9 @@
       "plateNumber": "WR008AM/NO410AC",
       "type": "Container Carrier",
       "currentJob": "10",
-      "nextJobQueue": [],
+      "nextJobQueue": [
+        "2"
+      ],
       "company": {
         "name": "Container Solutions",
         "description": "Container Solutions specializes in intermodal container transportation. We connect sea and land transport efficiently across Europe.",
@@ -120,9 +121,10 @@
       "realLoadingDate": "2025-02-28T09:00:00.000Z",
       "planUnloadingDate": "2024-03-23T16:00:00Z",
       "isUnloadingDateStrict": false,
-      "realUnloadingDate": null,
+      "realUnloadingDate": "2025-03-01T09:00:00.000Z",
       "addDate": "2024-03-22T10:00:00Z",
-      "lastUpdate": "2024-03-22T10:00:00Z"
+      "lastUpdate": "2025-02-28T18:07:49.478Z",
+      "status": "done"
     },
     {
       "id": "2",
@@ -136,12 +138,13 @@
       "cargoDescription": "Car components and spare parts. Temperature-controlled transport required.",
       "planLoadingDate": "2024-03-15T08:00:00Z",
       "isLoadingDateStrict": false,
-      "realLoadingDate": null,
+      "realLoadingDate": "2025-02-28T09:00:00.000Z",
       "planUnloadingDate": "2024-03-16T14:00:00Z",
       "isUnloadingDateStrict": true,
-      "realUnloadingDate": "",
+      "realUnloadingDate": "2025-03-02T09:00:00.000Z",
       "addDate": "2024-03-15T07:00:00Z",
-      "lastUpdate": "2024-03-15T08:45:00Z"
+      "lastUpdate": "2025-02-28T18:09:13.284Z",
+      "status": "done"
     },
     {
       "id": "3",
@@ -155,12 +158,13 @@
       "cargoDescription": "Farming machinery and tools. Oversized load requiring special permits.",
       "planLoadingDate": "2024-03-18T09:00:00Z",
       "isLoadingDateStrict": true,
-      "realLoadingDate": "",
+      "realLoadingDate": "2025-02-28T09:00:00.000Z",
       "planUnloadingDate": "",
       "isUnloadingDateStrict": false,
-      "realUnloadingDate": "",
+      "realUnloadingDate": "2025-03-02T09:00:00.000Z",
       "addDate": "2024-03-17T15:00:00Z",
-      "lastUpdate": "2024-03-17T15:00:00Z"
+      "lastUpdate": "2025-02-28T18:09:32.561Z",
+      "status": "done"
     },
     {
       "id": "1872",
@@ -179,7 +183,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-02-28T09:31:55.016Z",
-      "lastUpdate": "2025-02-28T09:31:55.016Z"
+      "lastUpdate": "2025-02-28T09:31:55.016Z",
+      "status": ""
     },
     {
       "id": "e939",
@@ -198,7 +203,8 @@
       "isUnloadingDateStrict": true,
       "realUnloadingDate": "2025-03-03T15:00:00.000Z",
       "addDate": "2025-02-28T10:27:20.163Z",
-      "lastUpdate": "2025-02-28T10:27:20.163Z"
+      "lastUpdate": "2025-02-28T10:27:20.163Z",
+      "status": ""
     },
     {
       "id": "4",
@@ -217,7 +223,8 @@
       "isUnloadingDateStrict": true,
       "realUnloadingDate": null,
       "addDate": "2024-03-20T10:00:00Z",
-      "lastUpdate": "2024-03-25T07:30:00Z"
+      "lastUpdate": "2024-03-25T07:30:00Z",
+      "status": "doing"
     },
     {
       "id": "5",
@@ -236,7 +243,8 @@
       "isUnloadingDateStrict": true,
       "realUnloadingDate": null,
       "addDate": "2024-03-20T15:00:00Z",
-      "lastUpdate": "2024-03-20T15:00:00Z"
+      "lastUpdate": "2024-03-20T15:00:00Z",
+      "status": "doing"
     },
     {
       "id": "6",
@@ -255,7 +263,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "2024-03-28T11:30:00Z",
       "addDate": "2024-03-21T08:00:00Z",
-      "lastUpdate": "2024-03-28T11:30:00Z"
+      "lastUpdate": "2024-03-28T11:30:00Z",
+      "status": "doing"
     },
     {
       "id": "7",
@@ -274,7 +283,8 @@
       "isUnloadingDateStrict": true,
       "realUnloadingDate": "",
       "addDate": "2024-03-22T09:00:00Z",
-      "lastUpdate": "2024-03-22T09:00:00Z"
+      "lastUpdate": "2024-03-22T09:00:00Z",
+      "status": "assigned"
     },
     {
       "id": "8",
@@ -293,7 +303,8 @@
       "isUnloadingDateStrict": true,
       "realUnloadingDate": "",
       "addDate": "2024-03-23T10:00:00Z",
-      "lastUpdate": "2024-03-23T10:00:00Z"
+      "lastUpdate": "2024-03-23T10:00:00Z",
+      "status": "assigned"
     },
     {
       "id": "9",
@@ -312,7 +323,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2024-03-24T11:00:00Z",
-      "lastUpdate": "2024-03-24T11:00:00Z"
+      "lastUpdate": "2024-03-24T11:00:00Z",
+      "status": "assigned"
     },
     {
       "id": "10",
@@ -331,7 +343,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": null,
       "addDate": "2024-03-25T12:00:00Z",
-      "lastUpdate": "2024-03-30T08:15:00Z"
+      "lastUpdate": "2024-03-30T08:15:00Z",
+      "status": "doing"
     }
   ]
 }

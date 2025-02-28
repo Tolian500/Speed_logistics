@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineProps, ref, computed, watch } from 'vue';
+import { defineProps, ref, computed, watch, onMounted } from 'vue';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -15,9 +15,110 @@ const props = defineProps({
 const toast = useToast();
 
 const showDetails = ref(false);
+const showAssignModal = ref(false);
+const trucks = ref([]);
+const selectedTruck = ref(null);
+const isLoading = ref(false);
+
+onMounted(async () => {
+  await fetchTrucks();
+});
+
+const fetchTrucks = async () => {
+  try {
+    const response = await axios.get('/api/trucks');
+    trucks.value = response.data;
+  } catch (error) {
+    console.error('Error fetching trucks:', error);
+    // Fallback to local data for demo
+    const response = await axios.get('/src/jobs.json');
+    trucks.value = response.data.trucks;
+  }
+};
 
 const toggleDetails = () => {
   showDetails.value = !showDetails.value;
+};
+
+const openAssignModal = () => {
+  showAssignModal.value = true;
+};
+
+const closeAssignModal = () => {
+  showAssignModal.value = false;
+  selectedTruck.value = null;
+};
+
+const assignJobToTruck = async () => {
+  if (!selectedTruck.value) {
+    toast.error('Please select a truck first');
+    return;
+  }
+  
+  isLoading.value = true;
+  
+  try {
+    // Get the current truck data
+    const truckResponse = await axios.get(`/api/trucks/${selectedTruck.value}`);
+    const truck = truckResponse.data;
+    
+    // Add job to nextJobQueue and sort by planLoadingDate
+    const updatedNextJobQueue = [...truck.nextJobQueue, props.job.id];
+    
+    // Fetch all jobs to sort them
+    const jobsResponse = await axios.get('/api/jobs');
+    const jobs = jobsResponse.data;
+    
+    // Sort the nextJobQueue by planLoadingDate
+    updatedNextJobQueue.sort((a, b) => {
+      const jobA = jobs.find(job => job.id === a);
+      const jobB = jobs.find(job => job.id === b);
+      
+      if (!jobA || !jobA.planLoadingDate) return 1;
+      if (!jobB || !jobB.planLoadingDate) return -1;
+      
+      return new Date(jobA.planLoadingDate) - new Date(jobB.planLoadingDate);
+    });
+    
+    // Update the truck with the sorted nextJobQueue
+    await axios.put(`/api/trucks/${selectedTruck.value}`, {
+      ...truck,
+      nextJobQueue: updatedNextJobQueue
+    });
+    
+    // Only update the job status to "assigned" if it's not already "doing"
+    if (props.job.status !== "doing") {
+      // Update the job status to "assigned"
+      await axios.put(`/api/jobs/${props.job.id}`, {
+        ...props.job,
+        status: "assigned",
+        lastUpdate: new Date().toISOString()
+      });
+      
+      // Update the local job object
+      props.job.status = "assigned";
+      props.job.lastUpdate = new Date().toISOString();
+    }
+    
+    toast.success(`Job assigned to truck ${truck.plateNumber}`);
+    closeAssignModal();
+  } catch (error) {
+    console.error('Error assigning job to truck:', error);
+    toast.error('Failed to assign job to truck. Please try again.');
+    
+    // Fallback for demo/development
+    toast.success(`Job would be assigned to truck ID: ${selectedTruck.value} (Demo Mode)`);
+    
+    // For demo purposes, update the local job status if it's not already "doing"
+    if (props.job.status !== "doing") {
+      props.job.status = "assigned";
+      props.job.lastUpdate = new Date().toISOString();
+    }
+    
+    closeAssignModal();
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const formatDate = (date) => {
@@ -48,6 +149,16 @@ const formatDateShort = (date) => {
   const month = String(d.getMonth() + 1).padStart(2, '0');
   return `${day}.${month}`;
 };
+
+// Add a computed property to ensure job status is correctly displayed
+const jobStatus = computed(() => {
+  // If job has a realUnloadingDate, it should be marked as "done"
+  if (props.job.realUnloadingDate && props.job.realUnloadingDate.length) {
+    return "done";
+  }
+  // Otherwise use the existing status
+  return props.job.status || "pending";
+});
 </script>
 
 <template>
@@ -84,7 +195,18 @@ const formatDateShort = (date) => {
           </div>
           
           <!-- Third column: Client name (fixed width) -->
-          <div class="col-span-3">
+          <div class="col-span-3 flex items-center">
+            <div 
+              v-if="jobStatus" 
+              class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
+              :class="{
+                'bg-green-300': jobStatus === 'assigned',
+                'bg-green-500': jobStatus === 'doing',
+                'bg-gray-500': jobStatus === 'completed' || jobStatus === 'done',
+                'bg-yellow-300': jobStatus === 'pending',
+                'bg-red-500': jobStatus === 'cancelled'
+              }"
+            ></div>
             <h3 class="text-sm font-bold text-green-600 truncate">
               {{ job.client.length > 12 ? job.client.substring(0, 12) + '...' : job.client }}
             </h3>
@@ -131,7 +253,17 @@ const formatDateShort = (date) => {
             </div>
             
             <!-- Third column: Client name (fixed width) -->
-            <div class="col-span-5">
+            <div class="col-span-5 flex items-center">
+              <div 
+                v-if="jobStatus" 
+                class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
+                :class="{
+                  'bg-purple-500': jobStatus === 'assigned',
+                  'bg-orange-500': jobStatus === 'doing',
+                  'bg-green-500': jobStatus === 'completed' || jobStatus === 'done',
+                  'bg-red-500': jobStatus === 'cancelled'
+                }"
+              ></div>
               <h3 class="text-sm font-bold text-green-600 truncate">
                 {{ job.client.length > 10 ? job.client.substring(0, 10) + '...' : job.client }}
               </h3>
@@ -163,6 +295,24 @@ const formatDateShort = (date) => {
             <div class="mb-2 flex justify-between items-center">
               <span class="text-gray-600">{{ job.type }}</span>
               <span class="text-sm text-gray-500">ID: {{ job.id }}</span>
+            </div>
+
+            <!-- Status Field (New) -->
+            <div class="mb-3 flex items-center">
+              <i class="pi pi-tag text-blue-500 mr-2"></i>
+              <span class="font-semibold mr-2">Status:</span>
+              <span class="px-2 py-1 rounded-full text-xs" 
+                :class="{
+                  'bg-gray-200 text-gray-700': !jobStatus,
+                  'bg-blue-100 text-blue-700': jobStatus === 'pending',
+                  'bg-yellow-100 text-yellow-700': jobStatus === 'in-progress',
+                  'bg-green-100 text-green-700': jobStatus === 'completed' || jobStatus === 'done',
+                  'bg-red-100 text-red-700': jobStatus === 'cancelled',
+                  'bg-purple-100 text-purple-700': jobStatus === 'assigned',
+                  'bg-orange-100 text-orange-700': jobStatus === 'doing'
+                }">
+                {{ jobStatus }}
+              </span>
             </div>
 
             <!-- Cargo Information -->
@@ -220,17 +370,89 @@ const formatDateShort = (date) => {
               <div class="text-xs text-gray-500">
                 Added: {{ formatDateShort(job.addDate) }}
               </div>
-              <RouterLink
-                :to="'/jobs/' + job.id"
-                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
-                @click.stop
-              >
-                Job Details
-              </RouterLink>
+              <div class="flex gap-2">
+                <button
+                  @click.stop="openAssignModal"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
+                >
+                  Assign Truck
+                </button>
+                <RouterLink
+                  :to="'/jobs/' + job.id"
+                  class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+                  @click.stop
+                >
+                  Job Details
+                </RouterLink>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
+    <!-- Assign Truck Modal -->
+    <VueFinalModal
+      v-model="showAssignModal"
+      classes="flex justify-center items-center"
+      content-class="relative mx-4 p-4 bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-auto"
+      @click-outside="closeAssignModal"
+    >
+      <div class="flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold">Assign Job to Truck</h3>
+          <button @click="closeAssignModal" class="text-gray-500 hover:text-gray-700">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+        
+        <div class="mb-4">
+          <p class="text-sm text-gray-600 mb-2">
+            Select a truck to assign this job to:
+          </p>
+          
+          <div class="max-h-[50vh] overflow-y-auto border border-gray-200 rounded-lg">
+            <div 
+              v-for="truck in trucks" 
+              :key="truck.id"
+              @click="selectedTruck = truck.id"
+              class="p-3 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50"
+              :class="{ 'bg-blue-50': selectedTruck === truck.id }"
+            >
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="font-semibold">{{ truck.plateNumber }}</div>
+                  <div class="text-xs text-gray-600">{{ truck.type }}</div>
+                  <div class="text-xs text-gray-500 mt-1">
+                    <span v-if="truck.company">{{ truck.company.name }}</span>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                  <div>Jobs in queue: {{ truck.nextJobQueue.length }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <button 
+            @click="closeAssignModal"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm"
+          >
+            Cancel
+          </button>
+          <button 
+            @click="assignJobToTruck"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm"
+            :disabled="isLoading || !selectedTruck"
+            :class="{ 'opacity-50 cursor-not-allowed': isLoading || !selectedTruck }"
+          >
+            <span v-if="isLoading">Assigning...</span>
+            <span v-else>Assign</span>
+          </button>
+        </div>
+      </div>
+    </VueFinalModal>
   </div>
 </template>

@@ -19,7 +19,10 @@ const state = reactive({
   isLoading: true,
 });
 
-onMounted(async () => {
+// Function to fetch and process data
+const fetchData = async () => {
+  state.isLoading = true;
+  
   try {
     const [trucksResponse, jobsResponse] = await Promise.all([
       axios.get('/api/trucks'),
@@ -27,7 +30,30 @@ onMounted(async () => {
     ]);
     
     state.trucks = trucksResponse.data;
-    state.jobs = jobsResponse.data;
+    
+    // Process jobs to ensure correct status
+    state.jobs = jobsResponse.data.map(job => {
+      // If job has a realUnloadingDate, it should be marked as "done"
+      if (job.realUnloadingDate && job.realUnloadingDate.length) {
+        return { ...job, status: "done" };
+      }
+      
+      // If job is in any truck's currentJob, it should be "doing"
+      const isCurrentJob = state.trucks.some(truck => truck.currentJob === job.id);
+      if (isCurrentJob && job.status !== "done") {
+        return { ...job, status: "doing" };
+      }
+      
+      // If job is in any truck's nextJobQueue, it should be "assigned" (unless it's already "doing")
+      const isInQueue = state.trucks.some(truck => 
+        truck.nextJobQueue && truck.nextJobQueue.includes(job.id)
+      );
+      if (isInQueue && job.status !== "doing" && job.status !== "done") {
+        return { ...job, status: "assigned" };
+      }
+      
+      return job;
+    });
     
     // Attach job data to each truck
     state.trucks = state.trucks.map(truck => {
@@ -61,7 +87,15 @@ onMounted(async () => {
   } finally {
     state.isLoading = false;
   }
-});
+};
+
+// Handler for job-completed event
+const handleJobCompleted = () => {
+  // Refresh the data when a job is completed
+  fetchData();
+};
+
+onMounted(fetchData);
 </script>
 
 <template>
@@ -84,10 +118,9 @@ onMounted(async () => {
           :job="truck.currentJobData"
           :nextJob="truck.nextJobData"
           :nextJobQueue="truck.nextJobQueueData"
+          @job-completed="handleJobCompleted"
         />
       </div>
     </div>
   </section>
-
-
 </template>

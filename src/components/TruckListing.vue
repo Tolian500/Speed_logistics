@@ -30,6 +30,10 @@ const unloadingModal = ref(false)
 const deleteLoadingModal = ref(false)
 const deleteUnloadingModal = ref(false)
 
+// New refs for job completion
+const completeJobModal = ref(false)
+const isCompletingJob = ref(false)
+
 const formatDate = (date) => {
   if (!date) return null;
   return new Date(date);
@@ -87,26 +91,95 @@ const submitRealLoadingDate = async () => {
 const submitRealUnloadingDate = async () => {
   if (!selectedRealUnloadingDate.value) return;
   
+  // Show confirmation modal instead of immediately setting the date
+  unloadingModal.value = false;
+  completeJobModal.value = true;
+};
+
+// New function to complete the job
+const completeJob = async () => {
+  if (!selectedRealUnloadingDate.value) return;
+  
+  isCompletingJob.value = true;
+  
   try {
-    const isUpdate = !!props.job.realUnloadingDate;
     const isoDate = selectedRealUnloadingDate.value.toISOString();
     
+    // 1. Update the job with realUnloadingDate and status "done"
     await axios.patch(`/api/jobs/${props.job.id}`, {
-      realUnloadingDate: isoDate
+      realUnloadingDate: isoDate,
+      status: "done",
+      lastUpdate: new Date().toISOString()
     });
     
+    // Update local job state
     props.job.realUnloadingDate = isoDate;
-    unloadingModal.value = false;
-    selectedRealUnloadingDate.value = null;
-
-    if (isUpdate) {
-      toast.info("Unloading date was successfully updated");
-    } else {
-      toast.success("Unloading date was successfully set");
+    props.job.status = "done";
+    props.job.lastUpdate = new Date().toISOString();
+    
+    // 2. Get the current truck data to ensure we have the latest
+    const truckResponse = await axios.get(`/api/trucks/${props.truck.id}`);
+    const currentTruck = truckResponse.data || props.truck;
+    
+    // 3. Prepare the next job (if available)
+    let nextJobId = null;
+    let updatedNextJobQueue = [...(currentTruck.nextJobQueue || [])];
+    
+    if (updatedNextJobQueue.length > 0) {
+      // Get the first job from the queue
+      nextJobId = updatedNextJobQueue.shift();
     }
+    
+    // 4. Update the truck: clear currentJob and assign next job if available
+    await axios.put(`/api/trucks/${props.truck.id}`, {
+      ...currentTruck,
+      currentJob: nextJobId,
+      nextJobQueue: updatedNextJobQueue
+    });
+    
+    // 5. If we assigned a new job, update its status to "doing"
+    if (nextJobId) {
+      const nextJobResponse = await axios.get(`/api/jobs/${nextJobId}`);
+      const nextJobData = nextJobResponse.data;
+      
+      await axios.put(`/api/jobs/${nextJobId}`, {
+        ...nextJobData,
+        status: "doing",
+        lastUpdate: new Date().toISOString()
+      });
+      
+      toast.success(`Job completed and next job #${nextJobId} assigned to truck`);
+    } else {
+      toast.success("Job completed. No more jobs in queue for this truck.");
+    }
+    
+    // Close modals and reset state
+    completeJobModal.value = false;
+    selectedRealUnloadingDate.value = null;
+    
+    // Emit an event to notify parent component to refresh data
+    emit('job-completed');
+    
   } catch (error) {
-    toast.error("Failed to update unloading date");
-    console.error('Failed to update unloading date:', error);
+    console.error('Error completing job:', error);
+    toast.error("Failed to complete job. Please try again.");
+    
+    // Fallback for demo/development
+    // Update local state to simulate the API call
+    props.job.realUnloadingDate = selectedRealUnloadingDate.value.toISOString();
+    props.job.status = "done";
+    
+    // Simulate removing job from truck and assigning next job
+    if (props.nextJobQueue && props.nextJobQueue.length > 0) {
+      toast.success(`Job completed and next job assigned to truck (Demo Mode)`);
+    } else {
+      toast.success("Job completed. No more jobs in queue for this truck. (Demo Mode)");
+    }
+    
+    completeJobModal.value = false;
+    selectedRealUnloadingDate.value = null;
+  } finally {
+    isCompletingJob.value = false;
   }
 };
 
@@ -145,6 +218,9 @@ const deleteRealUnloadingDate = async () => {
     console.error('Failed to delete unloading date:', error);
   }
 };
+
+// Define emit for parent component notification
+const emit = defineEmits(['job-completed']);
 
 // Replace the watch blocks with these new ones
 watch(loadingModal, (newValue) => {
@@ -556,6 +632,46 @@ const toggleFutureJobs = (event) => {
         <button 
           class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
           @click="deleteUnloadingModal = false"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </VueFinalModal>
+  
+  <!-- Job completion confirmation modal -->
+  <VueFinalModal
+    v-model="completeJobModal"
+    class="flex justify-center items-center z-50"
+    content-class="relative bg-white rounded-lg p-4 border shadow-lg w-[500px]"
+    overlay-class="bg-black bg-opacity-30 overflow-hidden"
+    :lock-scroll="false"
+    hide-overlay="false"
+  >
+    <div class="text-center">
+      <h3 class="text-lg font-medium mb-4">Complete Job?</h3>
+      <p class="text-gray-600 mb-4">
+        Setting the unloading date will mark this job as completed, remove it from this truck's current job, 
+        and assign the next job from the queue if available.
+      </p>
+      <p class="text-gray-600 mb-4">
+        Unloading date: <span class="font-semibold">{{ selectedRealUnloadingDate ? formatDisplayDate(selectedRealUnloadingDate) : 'Not set' }}</span>
+      </p>
+      
+      <div class="flex gap-2 justify-center">
+        <button 
+          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+          @click="completeJob"
+          :disabled="isCompletingJob"
+          :class="{ 'opacity-50 cursor-not-allowed': isCompletingJob }"
+        >
+          <span v-if="isCompletingJob">Processing...</span>
+          <span v-else>Complete Job</span>
+        </button>
+        <button 
+          class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+          @click="completeJobModal = false"
+          :disabled="isCompletingJob"
         >
           Cancel
         </button>
