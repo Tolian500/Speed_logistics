@@ -35,7 +35,7 @@ const isActiveLink = (routePath) => {
                   'py-2',
                   'rounded-md',
                 ]"
-                >Home</RouterLink
+                >Flota</RouterLink
               >
               <RouterLink
                 to="/jobs"
@@ -48,7 +48,7 @@ const isActiveLink = (routePath) => {
                   'py-2',
                   'rounded-md',
                 ]"
-                >Jobs</RouterLink
+                >Zamówienia</RouterLink
               >
               <RouterLink
                 to="/jobs/add"
@@ -61,8 +61,9 @@ const isActiveLink = (routePath) => {
                   'py-2',
                   'rounded-md',
                 ]"
-                >Add Job</RouterLink
+                >Kalendarz</RouterLink
               >
+              
             </div>
           </div>
         </div>
