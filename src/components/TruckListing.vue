@@ -14,6 +14,7 @@ const props = defineProps({
 });
 
 const toast = useToast();
+const showDetails = ref(false);
 
 const showRealLoadingCalendar = ref(false);
 const showRealUnloadingCalendar = ref(false);
@@ -146,100 +147,121 @@ watch(unloadingModal, (newValue) => {
     selectedRealUnloadingDate.value = formatDate(props.job.realUnloadingDate) || getDefaultDate();
   }
 });
+
+const toggleDetails = () => {
+  showDetails.value = !showDetails.value;
+};
 </script>
 
 <template>
-  <div class="bg-white rounded-xl shadow-md relative">
+  <div 
+    @click="toggleDetails"
+    class="bg-white rounded-xl shadow-md relative cursor-pointer hover:shadow-lg transition-shadow"
+  >
     <div class="p-4">
-      <!-- Truck Info Section -->
-      <div class="mb-2">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="text-gray-600">{{ truck.type }}</div>
-            <h3 class="text-xl font-bold">{{ truck.plateNumber }}</h3>
-          </div>
-          <RouterLink
-            v-if="job"
-            :to="'/jobs/' + job.id"
-            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
-          >
-            Job Details
-          </RouterLink>
-        </div>
+      <!-- Short Version - Always Visible -->
+      <div class="flex items-center justify-between">
+        <h3 class="text-l font-bold">{{ truck.plateNumber }}</h3>
+        <i 
+          :class="[
+            showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
+            'text-blue-500 text-xl transition-transform'
+          ]"
+        ></i>
       </div>
 
-      <div class="border border-gray-100 my-4"></div>
-
-      <!-- Current Job Info Section -->
-      <div v-if="job">
-        <h3 class="text-green-500 mb-2">Obecne zlecenie: {{ job.client }}</h3>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="flex flex-col">
-            <button 
-              disabled
-              class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
-            >
-              <span class="font-semibold mr-2">Plan Loading:</span>
-              <span :class="{ 'font-bold': !job.planLoadingDate }">
-                {{ job.planLoadingDate ? formatDisplayDate(job.planLoadingDate) : 'Set date' }}
-              </span>
-            </button>
-            <button 
-              @click="loadingModal = true"
-              class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
-            >
-              <span class="font-semibold mr-2">Real Loading:</span>
-              <span :class="{ 'font-bold': !job.realLoadingDate }">
-                {{ job.realLoadingDate ? formatDisplayDate(job.realLoadingDate) : 'Set date' }}
-              </span>
-            </button>
-          </div>
-          <div class="flex flex-col">
-            <button 
-              disabled
-              class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
-            >
-              <span class="font-semibold mr-2">Plan Unloading:</span>
-              <span :class="{ 'font-bold': !job.planUnloadingDate }">
-                {{ job.planUnloadingDate ? formatDisplayDate(job.planUnloadingDate) : 'Set date' }}
-              </span>
-            </button>
-            <button 
-              @click="unloadingModal = true"
-              class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
-            >
-              <span class="font-semibold mr-2">Real Unloading:</span>
-              <span :class="{ 'font-bold': !job.realUnloadingDate }">
-                {{ job.realUnloadingDate ? formatDisplayDate(job.realUnloadingDate) : 'Set date' }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between mb-4">
-          <div class="text-orange-700 flex items-center">
-            <template v-if="!job.realLoadingDate">
-              <i class="pi pi-forward text-orange-700 mr-2"></i>
-            </template>
-            <i class="pi pi-map-marker text-orange-700"></i>
-            {{ job.startlocationCountry }} {{ job.startlocationCity }} 
-          </div>
-          <template v-if="job.realLoadingDate">
-            <div class="text-orange-700 mx-2">
-              <i class="pi pi-forward text-orange-700"></i>
+      <!-- Extended Details - Shown when showDetails is true -->
+      <div v-if="showDetails" class="mt-4">
+        <div class="border-t border-gray-100 pt-4">
+          <!-- Truck Info Section -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="text-gray-600">{{ truck.type }}</div>
+              </div>
+              <RouterLink
+                v-if="job"
+                :to="'/jobs/' + job.id"
+                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                @click.stop
+              >
+                Details
+              </RouterLink>
             </div>
-          </template>
-          <div class="text-orange-700">
-            <i class="pi pi-map-marker text-orange-700"></i>
-            {{ job.destinationCountry }} {{ job.destinationCity }} 
+          </div>
+
+          <!-- Current Job Info Section -->
+          <div v-if="job">
+            <h3 class="text-green-500 mb-2">Current job: {{ job.client }}</h3>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="flex flex-col">
+                <button 
+                  disabled
+                  class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
+                >
+                  <span class="font-semibold mr-2">Plan Loading:</span>
+                  <span :class="{ 'font-bold': !job.planLoadingDate }">
+                    {{ job.planLoadingDate ? formatDisplayDate(job.planLoadingDate) : 'Set date' }}
+                  </span>
+                </button>
+                <button 
+                  @click.stop="loadingModal = true"
+                  class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
+                >
+                  <span class="font-semibold mr-2">Real Loading:</span>
+                  <span :class="{ 'font-bold': !job.realLoadingDate }">
+                    {{ job.realLoadingDate ? formatDisplayDate(job.realLoadingDate) : 'Set date' }}
+                  </span>
+                </button>
+              </div>
+              <div class="flex flex-col">
+                <button 
+                  disabled
+                  class="text-sm text-gray-400 p-2 rounded cursor-not-allowed"
+                >
+                  <span class="font-semibold mr-2">Plan Unloading:</span>
+                  <span :class="{ 'font-bold': !job.planUnloadingDate }">
+                    {{ job.planUnloadingDate ? formatDisplayDate(job.planUnloadingDate) : 'Set date' }}
+                  </span>
+                </button>
+                <button 
+                  @click.stop="unloadingModal = true"
+                  class="text-sm text-gray-600 hover:bg-gray-100 p-2 rounded"
+                >
+                  <span class="font-semibold mr-2">Real Unloading:</span>
+                  <span :class="{ 'font-bold': !job.realUnloadingDate }">
+                    {{ job.realUnloadingDate ? formatDisplayDate(job.realUnloadingDate) : 'Set date' }}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-orange-700 flex items-center">
+                <template v-if="!job.realLoadingDate">
+                  <i class="pi pi-forward text-orange-700 mr-2"></i>
+                </template>
+                <i class="pi pi-map-marker text-orange-700"></i>
+                {{ job.startlocationCountry }} {{ job.startlocationCity }} 
+              </div>
+              <template v-if="job.realLoadingDate">
+                <div class="text-orange-700 mx-2">
+                  <i class="pi pi-forward text-orange-700"></i>
+                </div>
+              </template>
+              <div class="text-orange-700">
+                <i class="pi pi-map-marker text-orange-700"></i>
+                {{ job.destinationCountry }} {{ job.destinationCity }} 
+              </div>
+            </div>
+          </div>
+          
+          <!-- No Current Job Message -->
+          <div v-else class="text-gray-500 italic">
+            No current job assigned
           </div>
         </div>
-      </div>
-      
-      <!-- No Current Job Message -->
-      <div v-else class="text-gray-500 italic">
-        No current job assigned
       </div>
     </div>
   </div>
