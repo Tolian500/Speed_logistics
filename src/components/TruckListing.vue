@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineProps, ref, computed, watch } from 'vue';
+import { defineProps, ref, computed, watch, onMounted } from 'vue';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -11,10 +11,13 @@ import 'vue-final-modal/style.css'
 const props = defineProps({
   truck: Object,
   job: Object,
+  nextJob: Object,
+  nextJobQueue: Array,
 });
 
 const toast = useToast();
 const showDetails = ref(false);
+const showFutureJobs = ref(false);
 
 const showRealLoadingCalendar = ref(false);
 const showRealUnloadingCalendar = ref(false);
@@ -159,6 +162,11 @@ watch(unloadingModal, (newValue) => {
 const toggleDetails = () => {
   showDetails.value = !showDetails.value;
 };
+
+const toggleFutureJobs = (event) => {
+  event.stopPropagation();
+  showFutureJobs.value = !showFutureJobs.value;
+};
 </script>
 
 <style scoped>
@@ -182,6 +190,17 @@ const toggleDetails = () => {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   z-index: 1;
+  cursor: pointer;
+}
+
+.future-jobs-container {
+  position: relative;
+  top: -5px;
+  width: 90%;
+  margin: 0 auto;
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  z-index: 0;
 }
 </style>
 
@@ -338,8 +357,65 @@ const toggleDetails = () => {
     </div>
 
     <!-- Next Jobs Placeholder Card -->
-    <div class="placeholder-card bg-white shadow-sm p-1 text-center text-gray-400 text-xs h-8 flex items-center justify-center">
-      <span>Future jobs will appear here</span>
+    <div 
+      @click="toggleFutureJobs"
+      class="placeholder-card bg-white shadow-sm p-1 text-xs h-8 flex items-center justify-between px-3 hover:bg-gray-50 transition-colors"
+    >
+      <template v-if="nextJob">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <i class="pi pi-calendar-plus text-blue-400 flex-shrink-0"></i>
+          <span class="font-medium text-green-600 truncate max-w-[80px]">
+            {{ nextJob.client.length > 10 ? nextJob.client.substring(0, 10) + '...' : nextJob.client }}
+          </span>
+          <div class="flex items-center gap-1 truncate text-gray-600 flex-1 min-w-0">
+            <span class="truncate max-w-[60px]">{{ nextJob.startlocationCity }}</span>
+            <i class="pi pi-arrow-right text-xs flex-shrink-0"></i>
+            <span class="truncate max-w-[60px]">{{ nextJob.destinationCity }}</span>
+          </div>
+          <span v-if="nextJobQueue && nextJobQueue.length > 1" class="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded-full flex-shrink-0">
+            +{{ nextJobQueue.length - 1 }}
+          </span>
+        </div>
+        <div class="flex items-center">
+          <span class="text-gray-500 whitespace-nowrap flex-shrink-0 mr-1">
+            {{ nextJob.planLoadingDate ? formatDisplayDateShort(nextJob.planLoadingDate) : '' }}
+          </span>
+          <i 
+            :class="[
+              showFutureJobs ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
+              'text-blue-500 text-sm transition-transform flex-shrink-0'
+            ]"
+          ></i>
+        </div>
+      </template>
+      <template v-else>
+        <span class="text-gray-400 text-center w-full">No future jobs scheduled</span>
+      </template>
+    </div>
+
+    <!-- Future Jobs Expanded View -->
+    <div v-if="showFutureJobs && nextJobQueue && nextJobQueue.length > 0" class="future-jobs-container bg-white shadow-sm p-3 text-xs">
+      <h4 class="font-medium text-gray-700 mb-2">Future Jobs Queue ({{ nextJobQueue.length }})</h4>
+      <div class="space-y-2">
+        <div v-for="(job, index) in nextJobQueue" :key="job.id" class="p-2 border border-gray-100 rounded hover:bg-gray-50">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <span class="text-gray-400 w-4">{{ index + 1 }}.</span>
+              <span class="font-medium text-green-600 truncate max-w-[80px]">
+                {{ job.client && job.client.length > 10 ? job.client.substring(0, 10) + '...' : job.client }}
+              </span>
+              <div class="flex items-center gap-1 truncate text-gray-600 flex-1 min-w-0">
+                <span class="truncate max-w-[60px]">{{ job.startlocationCity }}</span>
+                <i class="pi pi-arrow-right text-xs flex-shrink-0"></i>
+                <span class="truncate max-w-[60px]">{{ job.destinationCity }}</span>
+              </div>
+            </div>
+            <span class="text-gray-500 whitespace-nowrap flex-shrink-0">
+              {{ job.planLoadingDate ? formatDisplayDateShort(job.planLoadingDate) : 'No date' }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

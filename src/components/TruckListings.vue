@@ -30,10 +30,32 @@ onMounted(async () => {
     state.jobs = jobsResponse.data;
     
     // Attach job data to each truck
-    state.trucks = state.trucks.map(truck => ({
-      ...truck,
-      currentJobData: state.jobs.find(job => job.id === truck.currentJob)
-    }));
+    state.trucks = state.trucks.map(truck => {
+      // Get current job data
+      const currentJobData = state.jobs.find(job => job.id === truck.currentJob);
+      
+      // Get next job data (if exists)
+      let nextJobData = null;
+      let nextJobQueueData = [];
+      
+      if (truck.nextJobQueue && truck.nextJobQueue.length > 0) {
+        // Get the first job in the queue as the next job
+        const nextJobId = truck.nextJobQueue[0];
+        nextJobData = state.jobs.find(job => job.id === nextJobId);
+        
+        // Get all jobs in the queue
+        nextJobQueueData = truck.nextJobQueue.map(jobId => {
+          return state.jobs.find(job => job.id === jobId);
+        }).filter(job => job !== undefined);
+      }
+      
+      return {
+        ...truck,
+        currentJobData,
+        nextJobData,
+        nextJobQueueData
+      };
+    });
   } catch (error) {
     console.error('Error fetching data', error);
   } finally {
@@ -60,6 +82,8 @@ onMounted(async () => {
           :key="truck.id"
           :truck="truck"
           :job="truck.currentJobData"
+          :nextJob="truck.nextJobData"
+          :nextJobQueue="truck.nextJobQueueData"
         />
       </div>
     </div>

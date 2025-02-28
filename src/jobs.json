@@ -21,7 +21,9 @@
       "type": "Tief bet",
       "currentJob": "2",
       "nextJobQueue": [
-        "3"
+        "3",
+        "4",
+        "5"
       ],
       "company": {
         "name": "Dolor Cloud",
