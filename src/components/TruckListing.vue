@@ -158,10 +158,41 @@ const toggleDetails = () => {
     @click="toggleDetails"
     class="bg-white rounded-xl shadow-md relative cursor-pointer hover:shadow-lg transition-shadow"
   >
-    <div class="p-4">
+    <div class="p-3">
       <!-- Short Version - Always Visible -->
-      <div class="flex items-center justify-between">
-        <h3 class="text-l font-bold">{{ truck.plateNumber }}</h3>
+      <div class="flex justify-between">
+        <div class="flex flex-col gap-2">
+          <!-- Truck Info -->
+          <div class="flex items-center gap-2">
+            <h3 class="text-l font-bold">{{ truck.plateNumber }}</h3>
+            <template v-if="job && !job.realLoadingDate && !job.realUnloadingDate">
+              <i class="pi pi-caret-right text-yellow-500"></i>
+            </template>
+            <template v-else-if="job && job.realLoadingDate">
+              <div class="flex gap-0.5">
+                <i class="pi pi-caret-right text-green-500"></i>
+                <i class="pi pi-caret-right text-green-500"></i>
+                <i class="pi pi-caret-right text-green-500"></i>
+              </div>
+            </template>
+            <template v-else>
+              <i class="pi pi-caret-right text-gray-400"></i>
+            </template>
+          </div>
+          
+          <!-- Job Info (if exists) -->
+          <div v-if="job" class="flex items-center gap-4 text-sm">
+            <span class="text-green-600 font-medium">{{ job.client }}</span>
+            <span class="text-gray-500 font-medium">
+              {{ job.realLoadingDate ? formatDisplayDate(job.realLoadingDate) : formatDisplayDate(job.planLoadingDate) }}
+            </span>
+            <div class="flex items-center gap-2 text-gray-600">
+              <span>{{ job.startlocationCity }}</span>
+              <i class="pi pi-arrow-right text-xs"></i>
+              <span>{{ job.destinationCity }}</span>
+            </div>
+          </div>
+        </div>
         <i 
           :class="[
             showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
