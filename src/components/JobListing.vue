@@ -50,6 +50,7 @@ const closeAssignModal = () => {
 };
 
 const assignJobToTruck = async () => {
+  // 1. Validate truck selection
   if (!selectedTruck.value) {
     toast.error('Please select a truck first');
     return;
@@ -58,78 +59,112 @@ const assignJobToTruck = async () => {
   isLoading.value = true;
   
   try {
-    // Get the current truck data
+    // 2. Get current truck data and all jobs for comparison
     const truckResponse = await axios.get(`/api/trucks/${selectedTruck.value}`);
     const truck = truckResponse.data;
-    
-    // Check if the truck has a current job
-    const hasCurrentJob = truck.currentJob !== null && truck.currentJob !== undefined && truck.currentJob !== "";
-    
-    // Fetch all jobs to sort them if needed
     const jobsResponse = await axios.get('/api/jobs');
-    const jobs = jobsResponse.data;
+    const allJobs = jobsResponse.data;
+    
+    // Find current job data if exists
+    const currentJobData = truck.currentJob ? allJobs.find(job => job.id === truck.currentJob) : null;
+    const newJobData = props.job;
     
     let updatedTruck = { ...truck };
     let newJobStatus = "assigned";
     
-    // If truck has no current job, assign this job as the current job
-    if (!hasCurrentJob) {
-      updatedTruck.currentJob = props.job.id;
-      newJobStatus = "doing"; // Set status to "doing" since it's now the current job
+    // 3. Determine job placement based on dates and current job
+    if (!truck.currentJob) {
+      // If no current job, assign directly
+      updatedTruck.currentJob = newJobData.id;
+      newJobStatus = "doing";
     } else {
-      // Otherwise add to nextJobQueue and sort by planLoadingDate
-      const updatedNextJobQueue = [...truck.nextJobQueue, props.job.id];
+      // Compare dates to decide placement
+      const currentJobDate = currentJobData?.planLoadingDate ? new Date(currentJobData.planLoadingDate) : null;
+      const newJobDate = newJobData?.planLoadingDate ? new Date(newJobData.planLoadingDate) : null;
       
-      // Sort the nextJobQueue by planLoadingDate
-      updatedNextJobQueue.sort((a, b) => {
-        const jobA = jobs.find(job => job.id === a);
-        const jobB = jobs.find(job => job.id === b);
+      if (currentJobDate && newJobDate && newJobDate < currentJobDate) {
+        // If new job starts earlier, move current job to queue
+        updatedTruck.nextJobQueue = [truck.currentJob, ...truck.nextJobQueue];
+        updatedTruck.currentJob = newJobData.id;
+        newJobStatus = "doing";
         
-        if (!jobA || !jobA.planLoadingDate) return 1;
-        if (!jobB || !jobB.planLoadingDate) return -1;
+        // Update status of the previous current job
+        if (currentJobData && currentJobData.status === "doing") {
+          await axios.put(`/api/jobs/${currentJobData.id}`, {
+            ...currentJobData,
+            status: "assigned",
+            lastUpdate: new Date().toISOString()
+          });
+        }
+      } else {
+        // Add to queue if new job starts later
+        updatedTruck.nextJobQueue = [...truck.nextJobQueue, newJobData.id];
+      }
+    }
+    
+    // 4. Sort nextJobQueue by planLoadingDate if it exists
+    if (updatedTruck.nextJobQueue && updatedTruck.nextJobQueue.length > 0) {
+      const sortedQueue = [...updatedTruck.nextJobQueue];
+      sortedQueue.sort((a, b) => {
+        const jobA = allJobs.find(job => job.id === a);
+        const jobB = allJobs.find(job => job.id === b);
+        
+        // Handle cases where jobs might not be found or don't have dates
+        if (!jobA?.planLoadingDate) return 1;
+        if (!jobB?.planLoadingDate) return -1;
         
         return new Date(jobA.planLoadingDate) - new Date(jobB.planLoadingDate);
       });
       
-      updatedTruck.nextJobQueue = updatedNextJobQueue;
+      updatedTruck.nextJobQueue = sortedQueue;
     }
     
-    // Update the truck with the changes
+    // 5. Update truck data
     await axios.put(`/api/trucks/${selectedTruck.value}`, updatedTruck);
     
-    // Only update the job status if it's not already "doing"
+    // 6. Update new job status
     if (props.job.status !== "doing") {
-      // Update the job status
-      await axios.put(`/api/jobs/${props.job.id}`, {
+      const updatedJob = {
         ...props.job,
         status: newJobStatus,
         lastUpdate: new Date().toISOString()
-      });
+      };
       
-      // Update the local job object
-      props.job.status = newJobStatus;
-      props.job.lastUpdate = new Date().toISOString();
+      await axios.put(`/api/jobs/${props.job.id}`, updatedJob);
+      Object.assign(props.job, updatedJob);
     }
     
-    toast.success(`Job assigned to truck ${truck.plateNumber}`);
+    // Show success message with more details
+    const actionText = newJobStatus === "doing" ? "set as current job" : "added to queue";
+    toast.success(`Job successfully ${actionText} for truck ${truck.plateNumber}`);
     closeAssignModal();
+    
   } catch (error) {
+    // Error handling with demo fallback
     console.error('Error assigning job to truck:', error);
     toast.error('Failed to assign job to truck. Please try again.');
     
-    // Fallback for demo/development
-    toast.success(`Job would be assigned to truck ID: ${selectedTruck.value} (Demo Mode)`);
-    
-    // For demo purposes, update the local job status if it's not already "doing"
-    if (props.job.status !== "doing") {
-      // If the truck has no current job, set status to "doing", otherwise "assigned"
+    // Demo mode fallback
+    if (process.env.NODE_ENV === 'development') {
       const truck = trucks.value.find(t => t.id === selectedTruck.value);
-      const hasCurrentJob = truck && truck.currentJob;
-      props.job.status = hasCurrentJob ? "assigned" : "doing";
-      props.job.lastUpdate = new Date().toISOString();
+      
+      if (truck) {
+        const currentJobData = truck.currentJob ? state.jobs.find(job => job.id === truck.currentJob) : null;
+        const newJobDate = props.job?.planLoadingDate ? new Date(props.job.planLoadingDate) : null;
+        const currentJobDate = currentJobData?.planLoadingDate ? new Date(currentJobData.planLoadingDate) : null;
+        
+        // Simulate the assignment logic in demo mode
+        const shouldBeCurrent = !truck.currentJob || 
+          (newJobDate && currentJobDate && newJobDate < currentJobDate);
+        
+        props.job.status = shouldBeCurrent ? "doing" : "assigned";
+        props.job.lastUpdate = new Date().toISOString();
+        
+        const actionText = shouldBeCurrent ? "set as current job" : "added to queue";
+        toast.success(`Demo Mode: Job ${props.job.id} ${actionText} for truck ${truck.plateNumber}`);
+        closeAssignModal();
+      }
     }
-    
-    closeAssignModal();
   } finally {
     isLoading.value = false;
   }
