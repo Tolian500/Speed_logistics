@@ -161,17 +161,17 @@ onMounted(async () => {
     <div class="container-xl lg:container m-auto">
       <div class="flex justify-between md:justify-center items-center relative mb-6">
         <h2 class="text-2xl md:text-3xl font-bold text-green-500 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
-          Zamówienia
-        </h2>
+        Zamówienia
+      </h2>
         <div class="md:ml-auto">
-          <RouterLink 
-            to="/jobs/add"
+        <RouterLink 
+          to="/jobs/add"
             class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-all hover:shadow-xl hover:scale-105 flex items-center justify-center"
             title="Add New Job"
-          >
+        >
             <i class="pi pi-plus-circle text-2xl"></i>
             <span class="ml-2 font-medium hidden md:inline">Add Job</span>
-          </RouterLink>
+        </RouterLink>
         </div>
       </div>
 
@@ -283,7 +283,7 @@ onMounted(async () => {
           </div>
           
           <!-- Job listings -->
-          <div v-else class="grid grid-cols-1 gap-3">
+      <div v-else class="grid grid-cols-1 gap-3">
             <JobListing v-for="job in filteredActiveJobs" :key="job.id" :job="job" />
           </div>
         </div>

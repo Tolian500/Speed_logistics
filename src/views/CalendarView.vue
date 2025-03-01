@@ -31,8 +31,9 @@ import Calendar from '@/components/Calendar.vue';
 .calendar-container {
     flex-grow: 1;
     width: 100%;
-    overflow: auto;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    padding: 0;
 }
 </style>
