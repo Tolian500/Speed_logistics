@@ -245,18 +245,18 @@ onMounted(async () => {
               <button 
                 @click="statusFilter = 'assigned'"
                 class="text-xs font-medium px-2.5 py-1 rounded-full flex items-center transition-colors"
-                :class="statusFilter === 'assigned' ? 'bg-purple-200 text-purple-800' : 'bg-purple-100 text-purple-800 hover:bg-purple-200'"
+                :class="statusFilter === 'assigned' ? 'bg-blue-200 text-blue-800' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'"
               >
-                <i class="pi pi-tag text-purple-500 mr-1"></i>
+                <i class="pi pi-tag text-blue-500 mr-1"></i>
                 Assigned: {{ assignedJobsCount }}
               </button>
               <button 
                 @click="statusFilter = 'doing'"
                 class="text-xs font-medium px-2.5 py-1 rounded-full flex items-center transition-colors"
-                :class="statusFilter === 'doing' ? 'bg-orange-200 text-orange-800' : 'bg-orange-100 text-orange-800 hover:bg-orange-200'"
+                :class="statusFilter === 'doing' ? 'bg-green-200 text-green-800' : 'bg-green-100 text-green-800 hover:bg-green-200'"
               >
-                <i class="pi pi-sync text-orange-500 mr-1"></i>
-                In Progress: {{ doingJobsCount }}
+                <i class="pi pi-sync text-green-500 mr-1"></i>
+                Doing: {{ doingJobsCount }}
               </button>
               
               <!-- Status filter divider -->

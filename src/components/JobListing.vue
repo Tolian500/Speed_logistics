@@ -176,14 +176,21 @@ const formatDateShort = (date) => {
   return `${day}.${month}`;
 };
 
-// Add a computed property to ensure job status is correctly displayed
+// Update the jobStatus computed property
 const jobStatus = computed(() => {
-  // If job has a realUnloadingDate, it should be marked as "done"
+  // If job has a realUnloadingDate, it's completed
   if (props.job.realUnloadingDate && props.job.realUnloadingDate.length) {
-    return "done";
+    return "completed";
   }
-  // Otherwise use the existing status
-  return props.job.status || "pending";
+  
+  // If job is assigned to a truck
+  if (assignedTruck.value) {
+    // Return the job's position (current or queued)
+    return assignedTruck.value.currentJob === props.job.id ? "Current Job" : "In Queue";
+  }
+  
+  // If no assignment, it's pending
+  return "pending";
 });
 
 // Add new computed property to check if job is assigned to any truck
@@ -251,11 +258,10 @@ const jobsForTrucks = computed(() => {
               v-if="jobStatus" 
               class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
               :class="{
-                'bg-green-300': jobStatus === 'assigned',
-                'bg-green-500': jobStatus === 'doing',
-                'bg-gray-500': jobStatus === 'completed' || jobStatus === 'done',
                 'bg-yellow-300': jobStatus === 'pending',
-                'bg-red-500': jobStatus === 'cancelled'
+                'bg-blue-400': jobStatus === 'In Queue',
+                'bg-green-500': jobStatus === 'Current Job',
+                'bg-gray-500': jobStatus === 'completed'
               }"
             ></div>
             <h3 class="text-sm font-bold text-green-600 truncate">
@@ -309,11 +315,10 @@ const jobsForTrucks = computed(() => {
                 v-if="jobStatus" 
                 class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
                 :class="{
-                  'bg-green-300': jobStatus === 'assigned',
-                'bg-green-500': jobStatus === 'doing',
-                'bg-gray-500': jobStatus === 'completed' || jobStatus === 'done',
-                'bg-yellow-300': jobStatus === 'pending',
-                'bg-red-500': jobStatus === 'cancelled'
+                  'bg-yellow-300': jobStatus === 'pending',
+                  'bg-blue-400': jobStatus === 'In Queue',
+                  'bg-green-500': jobStatus === 'Current Job',
+                  'bg-gray-500': jobStatus === 'completed'
                 }"
               ></div>
               <h3 class="text-sm font-bold text-green-600 truncate">
@@ -349,22 +354,29 @@ const jobsForTrucks = computed(() => {
               <span class="text-sm text-gray-500">ID: {{ job.id }}</span>
             </div>
 
-            <!-- Status Field (New) -->
+            <!-- Status Field -->
             <div class="mb-3 flex items-center">
               <i class="pi pi-tag text-blue-500 mr-2"></i>
               <span class="font-semibold mr-2">Status:</span>
               <span class="px-2 py-1 rounded-full text-xs" 
                 :class="{
-                  'bg-gray-200 text-gray-700': !jobStatus,
-                  'bg-blue-100 text-blue-700': jobStatus === 'pending',
-                  'bg-yellow-100 text-yellow-700': jobStatus === 'in-progress',
-                  'bg-green-100 text-green-700': jobStatus === 'completed' || jobStatus === 'done',
-                  'bg-red-100 text-red-700': jobStatus === 'cancelled',
-                  'bg-purple-100 text-purple-700': jobStatus === 'assigned',
-                  'bg-orange-100 text-orange-700': jobStatus === 'doing'
+                  'bg-yellow-100 text-yellow-700': jobStatus === 'pending',
+                  'bg-blue-100 text-blue-700': jobStatus === 'In Queue',
+                  'bg-green-100 text-green-700': jobStatus === 'Current Job',
+                  'bg-gray-200 text-gray-700': jobStatus === 'completed'
                 }">
                 {{ jobStatus }}
               </span>
+            </div>
+
+            <!-- Assigned Truck Information -->
+            <div v-if="assignedTruck" class="mb-3 flex items-center">
+              <i class="pi pi-truck text-blue-500 mr-2"></i>
+              <span class="font-semibold mr-2">Assigned Truck:</span>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700">{{ assignedTruck.plateNumber }}</span>
+                <span class="text-xs text-gray-500">{{ assignedTruck.type }}</span>
+              </div>
             </div>
 
             <!-- Cargo Information -->

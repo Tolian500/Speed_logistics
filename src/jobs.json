@@ -4,7 +4,7 @@
       "id": "1",
       "plateNumber": "CTR31250/NO9088R",
       "type": "Semi Trailer",
-      "currentJob": "1872",
+      "currentJob": null,
       "nextJobQueue": [],
       "company": {
         "name": "NewTek Solutions",
@@ -78,9 +78,8 @@
       "id": "6",
       "plateNumber": "CTR41035/NO680CG",
       "type": "Curtainsider",
-      "currentJob": "6",
+      "currentJob": "",
       "nextJobQueue": [
-        "3",
         "9"
       ],
       "company": {
@@ -96,7 +95,7 @@
       "type": "Container Carrier",
       "currentJob": "10",
       "nextJobQueue": [
-        "2"
+        
       ],
       "company": {
         "name": "Container Solutions",
@@ -142,9 +141,9 @@
       "realLoadingDate": "2025-02-28T09:00:00.000Z",
       "planUnloadingDate": "2025-03-16T14:00:00Z",
       "isUnloadingDateStrict": true,
-      "realUnloadingDate": "2025-03-02T09:00:00.000Z",
+      "realUnloadingDate": "2025-03-01T09:00:00.000Z",
       "addDate": "2025-03-15T07:00:00Z",
-      "lastUpdate": "2025-02-28T18:19:58.966Z",
+      "lastUpdate": "2025-03-01T12:50:31.596Z",
       "status": "done"
     },
     {
@@ -164,7 +163,7 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "2025-02-28T09:00:00.000Z",
       "addDate": "2025-03-17T15:00:00Z",
-      "lastUpdate": "2025-02-28T21:21:50.168Z",
+      "lastUpdate": "2025-03-01T12:49:58.424Z",
       "status": "done"
     },
     {
@@ -179,13 +178,13 @@
       "cargoDescription": "Duże",
       "planLoadingDate": "2025-02-28T07:00:00.000Z",
       "isLoadingDateStrict": false,
-      "realLoadingDate": "",
+      "realLoadingDate": "2025-03-01T09:00:00.000Z",
       "planUnloadingDate": "2025-03-05T15:00:00.000Z",
       "isUnloadingDateStrict": false,
-      "realUnloadingDate": "",
+      "realUnloadingDate": "2025-03-01T09:00:00.000Z",
       "addDate": "2025-02-28T09:31:55.016Z",
-      "lastUpdate": "2025-02-28T19:02:03.888Z",
-      "status": "doing"
+      "lastUpdate": "2025-03-01T12:49:38.553Z",
+      "status": "done"
     },
     {
       "id": "e939",
@@ -262,10 +261,10 @@
       "realLoadingDate": "2025-03-26T10:00:00Z",
       "planUnloadingDate": "2025-03-28T12:00:00Z",
       "isUnloadingDateStrict": false,
-      "realUnloadingDate": "2025-03-28T11:30:00Z",
+      "realUnloadingDate": "2025-03-28T11:30:00.000Z",
       "addDate": "2025-03-21T08:00:00Z",
-      "lastUpdate": "2025-03-28T11:30:00Z",
-      "status": "doing"
+      "lastUpdate": "2025-03-01T12:48:48.435Z",
+      "status": "done"
     },
     {
       "id": "7",
@@ -406,6 +405,25 @@
       "addDate": "2025-03-01T12:12:18.926Z",
       "lastUpdate": "2025-03-01T12:18:51.006Z",
       "status": "doing"
+    },
+    {
+      "id": "4bf6",
+      "type": "Semi Trailer",
+      "startlocationCountry": "Poland",
+      "startlocationCity": "Minsk Mazowiecki",
+      "destinationCountry": "Belarus",
+      "destinationCity": "Minsk",
+      "client": "Belobaszko",
+      "cargoName": "Bulba",
+      "cargoDescription": "Tons of bulba",
+      "planLoadingDate": "2025-03-01T07:00:00.000Z",
+      "isLoadingDateStrict": false,
+      "realLoadingDate": "",
+      "planUnloadingDate": "2025-03-12T15:00:00.000Z",
+      "isUnloadingDateStrict": false,
+      "realUnloadingDate": "",
+      "addDate": "2025-03-01T12:43:02.138Z",
+      "lastUpdate": "2025-03-01T12:43:02.138Z"
     }
   ]
 }
