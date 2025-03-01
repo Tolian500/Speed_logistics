@@ -44,7 +44,6 @@
                 :grid="true"
                 row-height="60"
                 class="gantt-chart"
-                :highlight-current-time="true"
                 column-width="100"
               >
                 <!-- Custom header template to show only day numbers -->
@@ -63,7 +62,7 @@
                 <g-gantt-row
                   v-for="truck in trucks"
                   :key="truck.id"
-                  :label="truck.plateNumber"
+                  :label="''"
                   :bars="[]"
                 />
               </g-gantt-chart>
@@ -206,7 +205,7 @@
   }
   
   .truck-column-header {
-    height: 60px; /* Match the height of the gantt chart header */
+    height: 100px; /* Increased to account for scrollbar height */
     border-bottom: 1px solid #ddd;
   }
   
@@ -224,6 +223,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    padding-top: 16px; /* Add padding to account for scrollbar height */
   }
   
   /* Scrollbar container at the top */
@@ -234,7 +234,10 @@
     overflow-y: hidden;
     background: #f1f1f1;
     border-bottom: 1px solid #ddd;
-    position: relative;
+    position: absolute; /* Changed to absolute */
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 5;
   }
   
@@ -315,10 +318,18 @@
     font-weight: 600;
     color: #333;
     text-align: center;
-    padding: 8px 0;
   }
   
-  :deep(.g-gantt-chart-header-month) {
-    display: none !important;
+  :deep(.g-gantt-chart-header) {
+    padding-top: 0 !important;
+    margin-top: 16px; /* Add margin to push content below scrollbar */
+  }
+  
+  :deep(.g-gantt-chart-header-cell) {
+    padding: 8px 0;
+    height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   </style>
