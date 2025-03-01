@@ -105,16 +105,18 @@ const completeJob = async () => {
   try {
     const isoDate = selectedRealUnloadingDate.value.toISOString();
     
-    // 1. Update the job with realUnloadingDate and status "done"
+    // 1. Update the job with realUnloadingDate, status "done", and deliveredBy
     await axios.patch(`/api/jobs/${props.job.id}`, {
       realUnloadingDate: isoDate,
       status: "done",
+      deliveredBy: props.truck.plateNumber,
       lastUpdate: new Date().toISOString()
     });
     
     // Update local job state
     props.job.realUnloadingDate = isoDate;
     props.job.status = "done";
+    props.job.deliveredBy = props.truck.plateNumber;
     props.job.lastUpdate = new Date().toISOString();
     
     // 2. Get the current truck data to ensure we have the latest
@@ -168,6 +170,7 @@ const completeJob = async () => {
     // Update local state to simulate the API call
     props.job.realUnloadingDate = selectedRealUnloadingDate.value.toISOString();
     props.job.status = "done";
+    props.job.deliveredBy = props.truck.plateNumber;
     
     // Simulate removing job from truck and assigning next job
     if (props.nextJobQueue && props.nextJobQueue.length > 0) {

@@ -379,6 +379,16 @@ const jobsForTrucks = computed(() => {
               </div>
             </div>
 
+            <!-- Delivered By Information (for completed jobs) -->
+            <div v-if="job.deliveredBy && jobStatus === 'completed'" class="mb-3 flex items-center">
+              <i class="pi pi-check-circle text-green-500 mr-2"></i>
+              <span class="font-semibold mr-2">Delivered By:</span>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700">{{ job.deliveredBy }}</span>
+                <span class="text-xs text-gray-500">Completed on {{ formatDateOnly(job.realUnloadingDate) }}</span>
+              </div>
+            </div>
+
             <!-- Cargo Information -->
             <div class="mb-4">
               <div class="flex items-center gap-2 mb-2">

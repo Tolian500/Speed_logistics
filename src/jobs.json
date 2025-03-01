@@ -94,9 +94,7 @@
       "plateNumber": "WR008AM/NO410AC",
       "type": "Container Carrier",
       "currentJob": "10",
-      "nextJobQueue": [
-        
-      ],
+      "nextJobQueue": [],
       "company": {
         "name": "Container Solutions",
         "description": "Container Solutions specializes in intermodal container transportation. We connect sea and land transport efficiently across Europe.",
@@ -424,6 +422,27 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-01T12:43:02.138Z",
       "lastUpdate": "2025-03-01T12:43:02.138Z"
+    },
+    {
+      "id": "1def",
+      "type": "Semi Trailer",
+      "startlocationCountry": "Polands",
+      "startlocationCity": "test",
+      "destinationCountry": "Test",
+      "destinationCity": "Ponlad",
+      "client": "CatCore",
+      "cargoName": "Cats",
+      "cargoDescription": "Lot of cats",
+      "planLoadingDate": "2025-03-01T07:00:00.000Z",
+      "isLoadingDateStrict": false,
+      "realLoadingDate": "2025-03-01T09:00:00.000Z",
+      "planUnloadingDate": "2025-03-04T15:00:00.000Z",
+      "isUnloadingDateStrict": false,
+      "realUnloadingDate": "2025-03-02T09:00:00.000Z",
+      "addDate": "2025-03-01T12:59:27.796Z",
+      "lastUpdate": "2025-03-01T12:59:45.819Z",
+      "status": "done",
+      "deliveredBy": "CTR31250/NO9088R"
     }
   ]
 }
