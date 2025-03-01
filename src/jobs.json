@@ -19,6 +19,7 @@
       "type": "Tief bet",
       "currentJob": "1845",
       "nextJobQueue": [
+        "dcc9",
         "0978",
         "5",
         "4"
@@ -363,7 +364,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-02-28T19:03:33.785Z",
-      "lastUpdate": "2025-02-28T19:03:33.785Z"
+      "lastUpdate": "2025-03-01T12:23:32.655Z",
+      "status": "assigned"
     },
     {
       "id": "0978",

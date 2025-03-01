@@ -9,7 +9,7 @@ import { VueFinalModal } from 'vue-final-modal'
 import 'vue-final-modal/style.css'
 
 const props = defineProps({
-  job: Object,
+  job: Object
 });
 
 const toast = useToast();
@@ -17,6 +17,7 @@ const toast = useToast();
 const showDetails = ref(false);
 const showAssignModal = ref(false);
 const trucks = ref([]);
+const allJobs = ref([]);
 const selectedTruck = ref(null);
 const isLoading = ref(false);
 
@@ -26,13 +27,15 @@ onMounted(async () => {
 
 const fetchTrucks = async () => {
   try {
-    const response = await axios.get('/api/trucks');
-    trucks.value = response.data;
+    const [trucksResponse, jobsResponse] = await Promise.all([
+      axios.get('/api/trucks'),
+      axios.get('/api/jobs')
+    ]);
+    trucks.value = trucksResponse.data;
+    allJobs.value = jobsResponse.data;
   } catch (error) {
-    console.error('Error fetching trucks:', error);
-    // Fallback to local data for demo
-    const response = await axios.get('/src/jobs.json');
-    trucks.value = response.data.trucks;
+    console.error('Error fetching data:', error);
+    toast.error('Failed to fetch data. Please try again.');
   }
 };
 
@@ -50,7 +53,6 @@ const closeAssignModal = () => {
 };
 
 const assignJobToTruck = async () => {
-  // 1. Validate truck selection
   if (!selectedTruck.value) {
     toast.error('Please select a truck first');
     return;
@@ -59,7 +61,7 @@ const assignJobToTruck = async () => {
   isLoading.value = true;
   
   try {
-    // 2. Get current truck data and all jobs for comparison
+    // Get current truck data and all jobs for comparison
     const truckResponse = await axios.get(`/api/trucks/${selectedTruck.value}`);
     const truck = truckResponse.data;
     const jobsResponse = await axios.get('/api/jobs');
@@ -72,7 +74,7 @@ const assignJobToTruck = async () => {
     let updatedTruck = { ...truck };
     let newJobStatus = "assigned";
     
-    // 3. Determine job placement based on dates and current job
+    // Determine job placement based on dates and current job
     if (!truck.currentJob) {
       // If no current job, assign directly
       updatedTruck.currentJob = newJobData.id;
@@ -102,14 +104,13 @@ const assignJobToTruck = async () => {
       }
     }
     
-    // 4. Sort nextJobQueue by planLoadingDate if it exists
+    // Sort nextJobQueue by planLoadingDate if it exists
     if (updatedTruck.nextJobQueue && updatedTruck.nextJobQueue.length > 0) {
       const sortedQueue = [...updatedTruck.nextJobQueue];
       sortedQueue.sort((a, b) => {
         const jobA = allJobs.find(job => job.id === a);
         const jobB = allJobs.find(job => job.id === b);
         
-        // Handle cases where jobs might not be found or don't have dates
         if (!jobA?.planLoadingDate) return 1;
         if (!jobB?.planLoadingDate) return -1;
         
@@ -119,10 +120,10 @@ const assignJobToTruck = async () => {
       updatedTruck.nextJobQueue = sortedQueue;
     }
     
-    // 5. Update truck data
+    // Update truck data
     await axios.put(`/api/trucks/${selectedTruck.value}`, updatedTruck);
     
-    // 6. Update new job status
+    // Update new job status
     if (props.job.status !== "doing") {
       const updatedJob = {
         ...props.job,
@@ -134,37 +135,13 @@ const assignJobToTruck = async () => {
       Object.assign(props.job, updatedJob);
     }
     
-    // Show success message with more details
     const actionText = newJobStatus === "doing" ? "set as current job" : "added to queue";
     toast.success(`Job successfully ${actionText} for truck ${truck.plateNumber}`);
     closeAssignModal();
     
   } catch (error) {
-    // Error handling with demo fallback
     console.error('Error assigning job to truck:', error);
     toast.error('Failed to assign job to truck. Please try again.');
-    
-    // Demo mode fallback
-    if (process.env.NODE_ENV === 'development') {
-      const truck = trucks.value.find(t => t.id === selectedTruck.value);
-      
-      if (truck) {
-        const currentJobData = truck.currentJob ? state.jobs.find(job => job.id === truck.currentJob) : null;
-        const newJobDate = props.job?.planLoadingDate ? new Date(props.job.planLoadingDate) : null;
-        const currentJobDate = currentJobData?.planLoadingDate ? new Date(currentJobData.planLoadingDate) : null;
-        
-        // Simulate the assignment logic in demo mode
-        const shouldBeCurrent = !truck.currentJob || 
-          (newJobDate && currentJobDate && newJobDate < currentJobDate);
-        
-        props.job.status = shouldBeCurrent ? "doing" : "assigned";
-        props.job.lastUpdate = new Date().toISOString();
-        
-        const actionText = shouldBeCurrent ? "set as current job" : "added to queue";
-        toast.success(`Demo Mode: Job ${props.job.id} ${actionText} for truck ${truck.plateNumber}`);
-        closeAssignModal();
-      }
-    }
   } finally {
     isLoading.value = false;
   }
@@ -207,6 +184,31 @@ const jobStatus = computed(() => {
   }
   // Otherwise use the existing status
   return props.job.status || "pending";
+});
+
+// Add new computed property to check if job is assigned to any truck
+const assignedTruck = computed(() => {
+  return trucks.value.find(truck => 
+    truck.currentJob === props.job.id || 
+    truck.nextJobQueue.includes(props.job.id)
+  );
+});
+
+// Add new computed property for button text
+const assignButtonText = computed(() => {
+  return assignedTruck.value ? 'Change Truck' : 'Assign Truck';
+});
+
+// Add new computed property to get jobs data for trucks
+const jobsForTrucks = computed(() => {
+  const jobsMap = {};
+  trucks.value.forEach(truck => {
+    if (truck.currentJob) {
+      const job = allJobs.value.find(j => j.id === truck.currentJob);
+      jobsMap[truck.id] = job;
+    }
+  });
+  return jobsMap;
 });
 </script>
 
@@ -425,7 +427,7 @@ const jobStatus = computed(() => {
                   @click.stop="openAssignModal"
                   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
                 >
-                  Assign Truck
+                  {{ assignButtonText }}
                 </button>
                 <RouterLink
                   :to="'/jobs/' + job.id"
@@ -450,15 +452,43 @@ const jobStatus = computed(() => {
     >
       <div class="flex flex-col">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">Assign Job to Truck</h3>
+          <h3 class="text-lg font-bold">{{ assignButtonText }}</h3>
           <button @click="closeAssignModal" class="text-gray-500 hover:text-gray-700">
             <i class="pi pi-times"></i>
           </button>
         </div>
         
         <div class="mb-4">
+          <!-- Show current assignment if exists -->
+          <div v-if="assignedTruck" class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="text-sm text-blue-700 font-medium mb-2">Currently assigned to:</div>
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-semibold">{{ assignedTruck.plateNumber }}</div>
+                <div class="text-xs text-gray-600">{{ assignedTruck.type }}</div>
+                <div class="text-xs text-gray-500 mt-1">
+                  <template v-if="assignedTruck.currentJob">
+                    <span class="text-green-600">Current job: {{ jobsForTrucks[assignedTruck.id]?.client || 'Loading...' }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="text-gray-600">No current job</span>
+                  </template>
+                </div>
+              </div>
+              <div class="text-xs text-gray-500">
+                <div>Jobs in queue: {{ assignedTruck.nextJobQueue.length }}</div>
+                <div class="mt-1" :class="{
+                  'text-orange-600': assignedTruck.currentJob === props.job.id,
+                  'text-purple-600': assignedTruck.nextJobQueue.includes(props.job.id)
+                }">
+                  {{ assignedTruck.currentJob === props.job.id ? 'Current Job' : 'In Queue' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <p class="text-sm text-gray-600 mb-2">
-            Select a truck to assign this job to:
+            {{ assignedTruck ? 'Select a new truck to reassign this job:' : 'Select a truck to assign this job to:' }}
           </p>
           
           <div class="max-h-[50vh] overflow-y-auto border border-gray-200 rounded-lg">
@@ -466,19 +496,32 @@ const jobStatus = computed(() => {
               v-for="truck in trucks" 
               :key="truck.id"
               @click="selectedTruck = truck.id"
-              class="p-3 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50"
-              :class="{ 'bg-blue-50': selectedTruck === truck.id }"
+              class="p-3 border-b border-gray-200 last:border-b-0 cursor-pointer transition-colors"
+              :class="{
+                'bg-blue-50': selectedTruck === truck.id,
+                'bg-gray-100': truck.id === assignedTruck?.id,
+                'hover:bg-gray-50': truck.id !== assignedTruck?.id,
+                'opacity-50': truck.id === assignedTruck?.id && !selectedTruck
+              }"
             >
               <div class="flex justify-between items-center">
                 <div>
                   <div class="font-semibold">{{ truck.plateNumber }}</div>
                   <div class="text-xs text-gray-600">{{ truck.type }}</div>
-                  <div class="text-xs text-gray-500 mt-1">
-                    <span v-if="truck.company">{{ truck.company.name }}</span>
+                  <div class="text-xs mt-1">
+                    <template v-if="truck.currentJob">
+                      <span class="text-green-600">Current job: {{ jobsForTrucks[truck.id]?.client || 'Loading...' }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-gray-600">No current job</span>
+                    </template>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500">
                   <div>Jobs in queue: {{ truck.nextJobQueue.length }}</div>
+                  <div v-if="truck.id === assignedTruck?.id" class="mt-1 text-blue-600 font-medium">
+                    Currently Assigned
+                  </div>
                 </div>
               </div>
             </div>
@@ -495,11 +538,11 @@ const jobStatus = computed(() => {
           <button 
             @click="assignJobToTruck"
             class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm"
-            :disabled="isLoading || !selectedTruck"
-            :class="{ 'opacity-50 cursor-not-allowed': isLoading || !selectedTruck }"
+            :disabled="isLoading || !selectedTruck || selectedTruck === assignedTruck?.id"
+            :class="{ 'opacity-50 cursor-not-allowed': isLoading || !selectedTruck || selectedTruck === assignedTruck?.id }"
           >
-            <span v-if="isLoading">Assigning...</span>
-            <span v-else>Assign</span>
+            <span v-if="isLoading">{{ assignedTruck ? 'Reassigning...' : 'Assigning...' }}</span>
+            <span v-else>{{ assignedTruck ? 'Reassign' : 'Assign' }}</span>
           </button>
         </div>
       </div>
