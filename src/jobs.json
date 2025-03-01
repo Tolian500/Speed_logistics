@@ -394,7 +394,7 @@
       "client": "test",
       "cargoName": "teste",
       "cargoDescription": "test",
-      "planLoadingDate": "2025-01-01T07:00:00.000Z",
+      "planLoadingDate": "2025-03-01T07:00:00.000Z",
       "isLoadingDateStrict": false,
       "realLoadingDate": "",
       "planUnloadingDate": "2025-03-07T15:00:00.000Z",

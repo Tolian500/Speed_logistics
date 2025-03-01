@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, onUnmounted } from "vue"
 import axios from "axios"
 
 // Data for trucks and their jobs
@@ -27,7 +27,9 @@ const fetchData = async () => {
     isLoading.value = false
     
     // Scroll to today after data is loaded
-    scrollToToday()
+    setTimeout(() => {
+      scrollToToday()
+    }, 300)
   } catch (err) {
     console.error('Error fetching data:', err)
     error.value = 'Failed to load truck and job data'
@@ -164,21 +166,20 @@ const scrollToToday = () => {
   setTimeout(() => {
     if (ganttContainer.value && scrollbarContainer.value) {
       // Calculate today's position in the chart
-      const today = new Date()
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+      const today = new Date('2025-03-01T00:00:00Z') // Fixed date for demo
       
       // Get chart start and end dates
       const chartStart = new Date(chartDateRange.value.start)
       const chartEnd = new Date(chartDateRange.value.end)
       
-      // Calculate the total days in the chart
-      const totalDays = (chartEnd - chartStart) / (1000 * 60 * 60 * 24)
+      // Calculate the total milliseconds in the chart
+      const totalMs = chartEnd.getTime() - chartStart.getTime()
       
-      // Calculate days from start to today
-      const daysFromStart = (today - chartStart) / (1000 * 60 * 60 * 24)
+      // Calculate milliseconds from start to today
+      const msFromStart = today.getTime() - chartStart.getTime()
       
       // Calculate the position as a percentage of the total width
-      const positionPercentage = daysFromStart / totalDays
+      const positionPercentage = msFromStart / totalMs
       
       // Calculate the scroll position
       const scrollPosition = ganttContainer.value.scrollWidth * positionPercentage - (ganttContainer.value.clientWidth / 2)
@@ -190,7 +191,7 @@ const scrollToToday = () => {
       // Set up scroll synchronization
       setupScrollSync()
     }
-  }, 300) // Increased timeout to ensure chart is fully rendered
+  }, 300)
 }
 
 // Synchronize scrolling between the scrollbar and the gantt chart
@@ -291,26 +292,28 @@ onMounted(() => {
         </div>
       </div>
       
-      <div class="legend">
-        <div class="legend-item">
-          <span class="color-box" style="background-color: #4CAF50;"></span>
-          <span>Assigned</span>
-        </div>
-        <div class="legend-item">
-          <span class="color-box" style="background-color: #FF9800;"></span>
-          <span>In Progress</span>
-        </div>
-        <div class="legend-item">
-          <span class="color-box" style="background-color: #2196F3;"></span>
-          <span>Pending</span>
-        </div>
-        <div class="legend-item">
-          <span class="color-box" style="background-color: #F44336;"></span>
-          <span>Delayed</span>
-        </div>
-        <div class="legend-item">
-          <span class="color-box" style="background-color: #9E9E9E;"></span>
-          <span>Completed</span>
+      <div class="legend-container">
+        <div class="legend">
+          <div class="legend-item">
+            <span class="color-box" style="background-color: #4CAF50;"></span>
+            <span>Assigned</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-box" style="background-color: #FF9800;"></span>
+            <span>In Progress</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-box" style="background-color: #2196F3;"></span>
+            <span>Pending</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-box" style="background-color: #F44336;"></span>
+            <span>Delayed</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-box" style="background-color: #9E9E9E;"></span>
+            <span>Completed</span>
+          </div>
         </div>
       </div>
     </template>
@@ -505,15 +508,24 @@ onMounted(() => {
   display: none;
 }
 
+.legend-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
-  margin: 10px 20px;
-  padding: 10px;
+  justify-content: center;
+  padding: 10px 15px;
   border-top: 1px solid #eee;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  margin: 0 20px;
 }
 
 .legend-item {
@@ -558,6 +570,15 @@ onMounted(() => {
   
   .scrollbar-container {
     left: 75px;
+  }
+  
+  .legend {
+    padding: 8px;
+  }
+  
+  .legend-item {
+    margin-right: 12px;
+    font-size: 12px;
   }
 }
 </style>
