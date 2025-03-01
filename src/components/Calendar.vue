@@ -116,17 +116,46 @@ const getColorByStatus = (status) => {
 
 // Calculate date range for the chart
 const chartDateRange = computed(() => {
-  // Default date range (180 days centered around today)
-  const today = new Date()
-  const startDate = new Date(today)
-  startDate.setDate(today.getDate() - 90)
+  if (!jobs.value.length) {
+    // Default date range if no jobs
+    const today = new Date()
+    const startDate = new Date(today)
+    startDate.setDate(today.getDate() - 7)
+    
+    const endDate = new Date(today)
+    endDate.setDate(today.getDate() + 30)
+    
+    return {
+      start: `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')} 00:00`,
+      end: `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')} 23:59`
+    }
+  }
   
-  const endDate = new Date(today)
-  endDate.setDate(today.getDate() + 90)
+  // Find earliest and latest dates from jobs
+  let earliestDate = new Date()
+  let latestDate = new Date(0) // Initialize with oldest possible date
+  
+  jobs.value.forEach(job => {
+    const loadingDate = job.planLoadingDate || job.realLoadingDate
+    const unloadingDate = job.planUnloadingDate || job.realUnloadingDate
+    
+    if (loadingDate) {
+      const date = new Date(loadingDate)
+      if (date < earliestDate) earliestDate = date
+    }
+    
+    if (unloadingDate) {
+      const date = new Date(unloadingDate)
+      if (date > latestDate) latestDate = date
+    }
+  })
+  
+  // Add 30 days to the latest date
+  latestDate.setDate(latestDate.getDate() + 30)
   
   return {
-    start: `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')} 00:00`,
-    end: `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')} 23:59`
+    start: `${earliestDate.getFullYear()}-${String(earliestDate.getMonth() + 1).padStart(2, '0')}-${String(earliestDate.getDate()).padStart(2, '0')} 00:00`,
+    end: `${latestDate.getFullYear()}-${String(latestDate.getMonth() + 1).padStart(2, '0')}-${String(latestDate.getDate()).padStart(2, '0')} 23:59`
   }
 })
 
@@ -134,12 +163,34 @@ const chartDateRange = computed(() => {
 const scrollToToday = () => {
   setTimeout(() => {
     if (ganttContainer.value && scrollbarContainer.value) {
-      const scrollPosition = (ganttContainer.value.scrollWidth / 5) - (ganttContainer.value.clientWidth / 2)
-      ganttContainer.value.scrollLeft = scrollPosition
-      scrollbarContainer.value.scrollLeft = scrollPosition
+      // Calculate today's position in the chart
+      const today = new Date()
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+      
+      // Get chart start and end dates
+      const chartStart = new Date(chartDateRange.value.start)
+      const chartEnd = new Date(chartDateRange.value.end)
+      
+      // Calculate the total days in the chart
+      const totalDays = (chartEnd - chartStart) / (1000 * 60 * 60 * 24)
+      
+      // Calculate days from start to today
+      const daysFromStart = (today - chartStart) / (1000 * 60 * 60 * 24)
+      
+      // Calculate the position as a percentage of the total width
+      const positionPercentage = daysFromStart / totalDays
+      
+      // Calculate the scroll position
+      const scrollPosition = ganttContainer.value.scrollWidth * positionPercentage - (ganttContainer.value.clientWidth / 2)
+      
+      // Apply the scroll position
+      ganttContainer.value.scrollLeft = Math.max(0, scrollPosition)
+      scrollbarContainer.value.scrollLeft = Math.max(0, scrollPosition)
+      
+      // Set up scroll synchronization
       setupScrollSync()
     }
-  }, 200)
+  }, 300) // Increased timeout to ensure chart is fully rendered
 }
 
 // Synchronize scrolling between the scrollbar and the gantt chart
