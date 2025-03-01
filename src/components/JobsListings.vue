@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 import JobListing from './JobListing.vue';
+import Divider from './Divider.vue';
 import { reactive, defineProps, onMounted, computed, ref } from 'vue';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import axios from 'axios';
@@ -10,28 +11,22 @@ const state = reactive({
   isLoading: true,
 });
 
-// Add controls for filtering and sorting
-const showCompletedJobs = ref(false);
-const isAscending = ref(true);
+// Add section-specific sorting controls
+const pendingSortAscending = ref(true);
+const activeSortAscending = ref(true);
+const completedSortAscending = ref(false); // Default newest first for completed jobs
 
 // Add status filter
-const statusFilter = ref('all'); // 'all', 'assigned', 'doing', 'done'
+const statusFilter = ref('all'); // 'all', 'assigned', 'doing'
 
-// Filtered jobs
-const filteredJobs = computed(() => {
-  return state.jobs.filter(job => {
-    if (!showCompletedJobs.value) {
-      // Show only jobs without realUnloadingDate
-      return !job.realUnloadingDate || job.realUnloadingDate.length === 0;
-    }
-    // Show all jobs
-    return true;
-  });
-});
+// Add toggle for completed jobs section
+const showCompletedSection = ref(false);
+const showAllCompleted = ref(false);
+const completedJobsLimit = 5; // Show only 5 completed jobs initially
 
 // Pending jobs (not assigned)
 const pendingJobs = computed(() => {
-  return filteredJobs.value.filter(job => {
+  return state.jobs.filter(job => {
     // Consider a job pending if:
     // 1. It has no status or status is empty or status is "pending"
     // 2. It doesn't have a realUnloadingDate (not done)
@@ -47,19 +42,18 @@ const pendingJobs = computed(() => {
 
     // Compare dates based on sort direction
     const comparison = new Date(a.planLoadingDate) - new Date(b.planLoadingDate);
-    return isAscending.value ? comparison : -comparison;
+    return pendingSortAscending.value ? comparison : -comparison;
   });
 });
 
-// Other jobs (assigned, doing, done, etc.)
-const otherJobs = computed(() => {
-  return filteredJobs.value.filter(job => {
-    // Consider a job non-pending if:
-    // 1. It has a status of "assigned", "doing", or "done"
-    // 2. It has a realUnloadingDate (completed)
-    return (job.status === "assigned" || job.status === "doing" || 
-            job.status === "done" || job.status === "completed") ||
-           (job.realUnloadingDate && job.realUnloadingDate.length > 0);
+// Active jobs (assigned or doing, but not completed)
+const activeJobs = computed(() => {
+  return state.jobs.filter(job => {
+    // Consider a job active if:
+    // 1. It has a status of "assigned" or "doing"
+    // 2. It doesn't have a realUnloadingDate (not done)
+    return (job.status === "assigned" || job.status === "doing") &&
+           (!job.realUnloadingDate || job.realUnloadingDate.length === 0);
   }).sort((a, b) => {
     // If either date is null/empty, move it to the top
     if (!a.planLoadingDate && !b.planLoadingDate) return 0;
@@ -68,24 +62,41 @@ const otherJobs = computed(() => {
 
     // Compare dates based on sort direction
     const comparison = new Date(a.planLoadingDate) - new Date(b.planLoadingDate);
-    return isAscending.value ? comparison : -comparison;
+    return activeSortAscending.value ? comparison : -comparison;
   });
 });
 
-// Filtered other jobs based on status
-const filteredOtherJobs = computed(() => {
+// Completed jobs
+const completedJobs = computed(() => {
+  return state.jobs.filter(job => {
+    // Consider a job completed if:
+    // 1. It has a status of "done" or "completed"
+    // 2. It has a realUnloadingDate
+    return job.status === "done" || job.status === "completed" || 
+           (job.realUnloadingDate && job.realUnloadingDate.length > 0);
+  }).sort((a, b) => {
+    // For completed jobs, sort by realUnloadingDate
+    if (!a.realUnloadingDate && !b.realUnloadingDate) return 0;
+    if (!a.realUnloadingDate) return 1;
+    if (!b.realUnloadingDate) return -1;
+
+    // Compare dates based on sort direction
+    const comparison = new Date(a.realUnloadingDate) - new Date(b.realUnloadingDate);
+    return completedSortAscending.value ? comparison : -comparison;
+  });
+});
+
+// Filtered active jobs based on status
+const filteredActiveJobs = computed(() => {
   if (statusFilter.value === 'all') {
-    return otherJobs.value;
+    return activeJobs.value;
   }
   
-  return otherJobs.value.filter(job => {
+  return activeJobs.value.filter(job => {
     if (statusFilter.value === 'assigned') {
       return job.status === 'assigned';
     } else if (statusFilter.value === 'doing') {
       return job.status === 'doing';
-    } else if (statusFilter.value === 'done') {
-      return job.status === 'done' || job.status === 'completed' || 
-             (job.realUnloadingDate && job.realUnloadingDate.length > 0);
     }
     return true;
   });
@@ -93,28 +104,45 @@ const filteredOtherJobs = computed(() => {
 
 // Count jobs by status
 const assignedJobsCount = computed(() => {
-  return otherJobs.value.filter(job => job.status === "assigned").length;
+  return activeJobs.value.filter(job => job.status === "assigned").length;
 });
 
 const doingJobsCount = computed(() => {
-  return otherJobs.value.filter(job => job.status === "doing").length;
-});
-
-const doneJobsCount = computed(() => {
-  return otherJobs.value.filter(job => 
-    job.status === "done" || job.status === "completed" || 
-    (job.realUnloadingDate && job.realUnloadingDate.length > 0)
-  ).length;
+  return activeJobs.value.filter(job => job.status === "doing").length;
 });
 
 // Toggle functions
-const toggleShowCompleted = () => {
-  showCompletedJobs.value = !showCompletedJobs.value;
+const togglePendingSort = () => {
+  pendingSortAscending.value = !pendingSortAscending.value;
 };
 
-const toggleSortDirection = () => {
-  isAscending.value = !isAscending.value;
+const toggleActiveSort = () => {
+  activeSortAscending.value = !activeSortAscending.value;
 };
+
+const toggleCompletedSort = () => {
+  completedSortAscending.value = !completedSortAscending.value;
+};
+
+const toggleCompletedSection = () => {
+  showCompletedSection.value = !showCompletedSection.value;
+  // Reset the show all flag when toggling the section
+  if (!showCompletedSection.value) {
+    showAllCompleted.value = false;
+  }
+};
+
+const toggleShowAllCompleted = () => {
+  showAllCompleted.value = !showAllCompleted.value;
+};
+
+// Limited completed jobs for initial display
+const limitedCompletedJobs = computed(() => {
+  if (showAllCompleted.value) {
+    return completedJobs.value;
+  }
+  return completedJobs.value.slice(0, completedJobsLimit);
+});
 
 onMounted(async () => {
   try {
@@ -129,43 +157,22 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="bg-blue-50 px-4 py-10">
+  <section class="bg-blue-50 px-4 py-10 pb-24">
     <div class="container-xl lg:container m-auto">
-      <h2 class="text-3xl font-bold text-green-500 mb-6 text-center">
-        Zamówienia
-      </h2>
-
-      <!-- Control buttons -->
-      <div class="flex justify-center gap-4 mb-6">
-        <button 
-          @click="toggleShowCompleted"
-          class="px-4 py-2 rounded-lg font-medium transition-colors"
-          :class="{
-            'bg-green-500 text-white': !showCompletedJobs,
-            'bg-gray-300 text-gray-700': showCompletedJobs
-          }"
-        >
-          {{ showCompletedJobs ? 'Hide Completed' : 'Show Completed' }}
-        </button>
-        
-        <button 
-          @click="toggleSortDirection"
-          class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          <span>Sort</span>
-          <i :class="[
-            isAscending ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down',
-            'text-lg'
-          ]"></i>
-        </button>
-
-        <RouterLink 
-          to="/jobs/add"
-          class="bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors flex items-center gap-2"
-        >
-          <span>Add Job</span>
-          <i class="pi pi-plus text-lg"></i>
-        </RouterLink>
+      <div class="flex justify-between md:justify-center items-center relative mb-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-green-500 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+          Zamówienia
+        </h2>
+        <div class="md:ml-auto">
+          <RouterLink 
+            to="/jobs/add"
+            class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-all hover:shadow-xl hover:scale-105 flex items-center justify-center"
+            title="Add New Job"
+          >
+            <i class="pi pi-plus-circle text-2xl"></i>
+            <span class="ml-2 font-medium hidden md:inline">Add Job</span>
+          </RouterLink>
+        </div>
       </div>
 
       <!-- Show loading spinner while loading is true -->
@@ -177,45 +184,56 @@ onMounted(async () => {
       <div v-else>
         <!-- Pending Jobs Section -->
         <div v-if="pendingJobs.length > 0" class="mb-8">
-          <div class="flex items-center mb-4 bg-yellow-50 p-3 rounded-lg shadow-sm">
-            <i class="pi pi-clock text-yellow-500 mr-2 text-xl"></i>
-            <h3 class="text-xl font-semibold text-yellow-600">
-              Pending Jobs - Not Assigned
-            </h3>
-            <span class="ml-2 bg-yellow-200 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-              {{ pendingJobs.length }}
-            </span>
+          <div class="flex items-center justify-between mb-4 bg-yellow-50 p-3 rounded-lg shadow-sm">
+            <div class="flex items-center">
+              <i class="pi pi-clock text-yellow-500 mr-2 text-xl"></i>
+              <h3 class="text-xl font-semibold text-yellow-600">
+                Not Assigned
+              </h3>
+              <span class="ml-2 bg-yellow-200 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                {{ pendingJobs.length }}
+              </span>
+            </div>
+            <button 
+              @click="togglePendingSort" 
+              class="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1 px-2 py-1 rounded hover:bg-yellow-100 transition-colors"
+              title="Toggle sort order"
+            >
+              <span>{{ pendingSortAscending ? 'Oldest first' : 'Newest first' }}</span>
+              <i :class="[
+                pendingSortAscending ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down',
+                'text-xs'
+              ]"></i>
+            </button>
           </div>
           <div class="grid grid-cols-1 gap-3">
             <JobListing v-for="job in pendingJobs" :key="job.id" :job="job" />
           </div>
         </div>
 
-        <!-- Divider -->
-        <div v-if="pendingJobs.length > 0 && otherJobs.length > 0" class="relative my-10">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-300"></div>
-          </div>
-          <div class="relative flex justify-center">
-            <span class="bg-blue-50 px-4 text-sm text-gray-500">Other Jobs</span>
-          </div>
-        </div>
+        <!-- Divider for Active Jobs -->
+        <Divider 
+          v-if="pendingJobs.length > 0 && activeJobs.length > 0" 
+          title="Active Jobs"
+          bgColor="bg-blue-50"
+          marginY="my-0"
+        />
 
-        <!-- Other Jobs Section -->
-        <div v-if="otherJobs.length > 0">
+        <!-- Active Jobs Section -->
+        <div v-if="activeJobs.length > 0" class="mb-8">
           <div class="flex flex-col md:flex-row md:items-center mb-4 bg-blue-50 p-3 rounded-lg shadow-sm">
             <div class="flex items-center">
               <i class="pi pi-check-circle text-blue-500 mr-2 text-xl"></i>
               <h3 class="text-xl font-semibold text-blue-600">
-                Active & Completed Jobs
+                Active Jobs
               </h3>
               <span class="ml-2 bg-blue-200 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                {{ otherJobs.length }}
+                {{ activeJobs.length }}
               </span>
             </div>
             
-            <!-- Status counts and filters -->
-            <div class="mt-2 md:mt-0 md:ml-auto flex flex-wrap gap-2">
+            <div class="mt-2 md:mt-0 md:ml-auto flex flex-wrap items-center gap-2">
+              <!-- Status counts and filters -->
               <button 
                 @click="statusFilter = 'all'"
                 class="text-xs font-medium px-2.5 py-1 rounded-full flex items-center transition-colors"
@@ -240,31 +258,97 @@ onMounted(async () => {
                 <i class="pi pi-sync text-orange-500 mr-1"></i>
                 In Progress: {{ doingJobsCount }}
               </button>
+              
+              <!-- Status filter divider -->
+              <div class="h-4 border-l border-gray-300 mx-1 hidden md:block"></div>
+              
+              <!-- Sort control (moved after filters) -->
               <button 
-                @click="statusFilter = 'done'"
-                class="text-xs font-medium px-2.5 py-1 rounded-full flex items-center transition-colors"
-                :class="statusFilter === 'done' ? 'bg-gray-200 text-gray-800' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'"
+                @click="toggleActiveSort" 
+                class="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                title="Toggle sort order"
               >
-                <i class="pi pi-check text-gray-500 mr-1"></i>
-                Completed: {{ doneJobsCount }}
+                <span>{{ activeSortAscending ? 'Oldest first' : 'Newest first' }}</span>
+                <i :class="[
+                  activeSortAscending ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down',
+                  'text-xs'
+                ]"></i>
               </button>
             </div>
           </div>
           
           <!-- No results message when filtered -->
-          <div v-if="filteredOtherJobs.length === 0" class="text-center text-gray-500 py-6 bg-white rounded-lg shadow-sm">
+          <div v-if="filteredActiveJobs.length === 0" class="text-center text-gray-500 py-6 bg-white rounded-lg shadow-sm">
             <p>No jobs match the selected filter. Try a different filter.</p>
           </div>
           
           <!-- Job listings -->
           <div v-else class="grid grid-cols-1 gap-3">
-            <JobListing v-for="job in filteredOtherJobs" :key="job.id" :job="job" />
+            <JobListing v-for="job in filteredActiveJobs" :key="job.id" :job="job" />
+          </div>
+        </div>
+
+        <!-- Divider for Completed Jobs -->
+        <Divider 
+          v-if="completedJobs.length > 0" 
+          title="Completed Jobs"
+          :count="completedJobs.length"
+          bgColor="bg-blue-50"
+          expandable
+          :expanded="showCompletedSection"
+          marginY="my-6"
+          @toggle="toggleCompletedSection"
+        />
+
+        <!-- Completed Jobs Section -->
+        <div v-if="completedJobs.length > 0 && showCompletedSection" class="mb-12">
+          <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-lg shadow-sm">
+            <div class="flex items-center">
+              <i class="pi pi-check-square text-gray-500 mr-2 text-xl"></i>
+              <h3 class="text-xl font-semibold text-gray-600">
+                Completed Jobs
+              </h3>
+              <span class="ml-2 bg-gray-200 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                {{ completedJobs.length }}
+              </span>
+            </div>
+            <button 
+              @click="toggleCompletedSort" 
+              class="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+              title="Toggle sort order"
+            >
+              <span>{{ completedSortAscending ? 'Oldest first' : 'Newest first' }}</span>
+              <i :class="[
+                completedSortAscending ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down',
+                'text-xs'
+              ]"></i>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 gap-3">
+            <JobListing v-for="job in limitedCompletedJobs" :key="job.id" :job="job" />
+          </div>
+          
+          <!-- Show All / Show Less button -->
+          <div v-if="completedJobs.length > completedJobsLimit" class="mt-4 text-center">
+            <button 
+              @click="toggleShowAllCompleted" 
+              class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              <span v-if="showAllCompleted">
+                <i class="pi pi-chevron-up mr-1"></i>
+                Show Less
+              </span>
+              <span v-else>
+                <i class="pi pi-chevron-down mr-1"></i>
+                Show All {{ completedJobs.length }} Completed Jobs
+              </span>
+            </button>
           </div>
         </div>
 
         <!-- No Jobs Message -->
-        <div v-if="pendingJobs.length === 0 && otherJobs.length === 0" class="text-center text-gray-500 py-6">
-          <p>No jobs found. Try adjusting your filters or add a new job.</p>
+        <div v-if="pendingJobs.length === 0 && activeJobs.length === 0 && completedJobs.length === 0" class="text-center text-gray-500 py-6">
+          <p>No jobs found. Add a new job to get started.</p>
         </div>
       </div>
     </div>

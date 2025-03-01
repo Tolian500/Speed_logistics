@@ -4,7 +4,7 @@
       "id": "1",
       "plateNumber": "CTR31250/NO9088R",
       "type": "Semi Trailer",
-      "currentJob": null,
+      "currentJob": "1872",
       "nextJobQueue": [],
       "company": {
         "name": "NewTek Solutions",
@@ -17,10 +17,10 @@
       "id": "2",
       "plateNumber": "NO667AC/NO580AF",
       "type": "Tief bet",
-      "currentJob": "3",
+      "currentJob": "5",
       "nextJobQueue": [
         "4",
-        "5"
+        "0978"
       ],
       "company": {
         "name": "Dolor Cloud",
@@ -160,10 +160,10 @@
       "realLoadingDate": "2025-02-28T09:00:00.000Z",
       "planUnloadingDate": "",
       "isUnloadingDateStrict": false,
-      "realUnloadingDate": "2025-03-02T09:00:00.000Z",
+      "realUnloadingDate": "2025-02-28T09:00:00.000Z",
       "addDate": "2024-03-17T15:00:00Z",
-      "lastUpdate": "2025-02-28T18:19:59.069Z",
-      "status": "doing"
+      "lastUpdate": "2025-02-28T21:21:50.168Z",
+      "status": "done"
     },
     {
       "id": "1872",
@@ -182,8 +182,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-02-28T09:31:55.016Z",
-      "lastUpdate": "2025-02-28T09:31:55.016Z",
-      "status": ""
+      "lastUpdate": "2025-02-28T19:02:03.888Z",
+      "status": "doing"
     },
     {
       "id": "e939",
@@ -242,7 +242,7 @@
       "isUnloadingDateStrict": true,
       "realUnloadingDate": null,
       "addDate": "2024-03-20T15:00:00Z",
-      "lastUpdate": "2024-03-20T15:00:00Z",
+      "lastUpdate": "2025-02-28T21:21:50.261Z",
       "status": "doing"
     },
     {
@@ -344,6 +344,45 @@
       "addDate": "2024-03-25T12:00:00Z",
       "lastUpdate": "2024-03-30T08:15:00Z",
       "status": "doing"
+    },
+    {
+      "id": "dcc9",
+      "type": "Tief bet",
+      "startlocationCountry": "Poland",
+      "startlocationCity": "Warszawa",
+      "destinationCountry": "France",
+      "destinationCity": "Paris",
+      "client": "Amita &  Mouse LTD",
+      "cargoName": "Poni carrage",
+      "cargoDescription": "Small pony with 4 legs",
+      "planLoadingDate": "2025-03-01T07:00:00.000Z",
+      "isLoadingDateStrict": false,
+      "realLoadingDate": "",
+      "planUnloadingDate": "2025-03-04T15:00:00.000Z",
+      "isUnloadingDateStrict": false,
+      "realUnloadingDate": "",
+      "addDate": "2025-02-28T19:03:33.785Z",
+      "lastUpdate": "2025-02-28T19:03:33.785Z"
+    },
+    {
+      "id": "0978",
+      "type": "Semi Trailer",
+      "startlocationCountry": "D",
+      "startlocationCity": "Hamburg",
+      "destinationCountry": "Lt",
+      "destinationCity": "Vilnus",
+      "client": "Tobbe",
+      "cargoName": "Combain",
+      "cargoDescription": "8x 3x 3,89",
+      "planLoadingDate": "2025-03-12T07:00:00.000Z",
+      "isLoadingDateStrict": true,
+      "realLoadingDate": "",
+      "planUnloadingDate": "2025-03-15T15:00:00.000Z",
+      "isUnloadingDateStrict": false,
+      "realUnloadingDate": "",
+      "addDate": "2025-02-28T21:18:18.670Z",
+      "lastUpdate": "2025-02-28T21:19:08.388Z",
+      "status": "assigned"
     }
   ]
 }

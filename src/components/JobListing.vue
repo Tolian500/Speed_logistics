@@ -62,41 +62,52 @@ const assignJobToTruck = async () => {
     const truckResponse = await axios.get(`/api/trucks/${selectedTruck.value}`);
     const truck = truckResponse.data;
     
-    // Add job to nextJobQueue and sort by planLoadingDate
-    const updatedNextJobQueue = [...truck.nextJobQueue, props.job.id];
+    // Check if the truck has a current job
+    const hasCurrentJob = truck.currentJob !== null && truck.currentJob !== undefined && truck.currentJob !== "";
     
-    // Fetch all jobs to sort them
+    // Fetch all jobs to sort them if needed
     const jobsResponse = await axios.get('/api/jobs');
     const jobs = jobsResponse.data;
     
-    // Sort the nextJobQueue by planLoadingDate
-    updatedNextJobQueue.sort((a, b) => {
-      const jobA = jobs.find(job => job.id === a);
-      const jobB = jobs.find(job => job.id === b);
-      
-      if (!jobA || !jobA.planLoadingDate) return 1;
-      if (!jobB || !jobB.planLoadingDate) return -1;
-      
-      return new Date(jobA.planLoadingDate) - new Date(jobB.planLoadingDate);
-    });
+    let updatedTruck = { ...truck };
+    let newJobStatus = "assigned";
     
-    // Update the truck with the sorted nextJobQueue
-    await axios.put(`/api/trucks/${selectedTruck.value}`, {
-      ...truck,
-      nextJobQueue: updatedNextJobQueue
-    });
+    // If truck has no current job, assign this job as the current job
+    if (!hasCurrentJob) {
+      updatedTruck.currentJob = props.job.id;
+      newJobStatus = "doing"; // Set status to "doing" since it's now the current job
+    } else {
+      // Otherwise add to nextJobQueue and sort by planLoadingDate
+      const updatedNextJobQueue = [...truck.nextJobQueue, props.job.id];
+      
+      // Sort the nextJobQueue by planLoadingDate
+      updatedNextJobQueue.sort((a, b) => {
+        const jobA = jobs.find(job => job.id === a);
+        const jobB = jobs.find(job => job.id === b);
+        
+        if (!jobA || !jobA.planLoadingDate) return 1;
+        if (!jobB || !jobB.planLoadingDate) return -1;
+        
+        return new Date(jobA.planLoadingDate) - new Date(jobB.planLoadingDate);
+      });
+      
+      updatedTruck.nextJobQueue = updatedNextJobQueue;
+    }
     
-    // Only update the job status to "assigned" if it's not already "doing"
+    // Update the truck with the changes
+    await axios.put(`/api/trucks/${selectedTruck.value}`, updatedTruck);
+    
+    // Only update the job status if it's not already "doing"
     if (props.job.status !== "doing") {
-      // Update the job status to "assigned"
+      // Update the job status
       await axios.put(`/api/jobs/${props.job.id}`, {
         ...props.job,
-        status: "assigned",
+        status: newJobStatus,
         lastUpdate: new Date().toISOString()
       });
       
       // Update the local job object
-      props.job.status = "assigned";
+      props.job.status = newJobStatus;
       props.job.lastUpdate = new Date().toISOString();
     }
     
@@ -111,7 +122,10 @@ const assignJobToTruck = async () => {
     
     // For demo purposes, update the local job status if it's not already "doing"
     if (props.job.status !== "doing") {
-      props.job.status = "assigned";
+      // If the truck has no current job, set status to "doing", otherwise "assigned"
+      const truck = trucks.value.find(t => t.id === selectedTruck.value);
+      const hasCurrentJob = truck && truck.currentJob;
+      props.job.status = hasCurrentJob ? "assigned" : "doing";
       props.job.lastUpdate = new Date().toISOString();
     }
     
