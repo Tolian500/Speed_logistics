@@ -6,10 +6,6 @@
       </div>
       
       <template v-else>
-        <div class="calendar-header">
-          <span class="date-range">{{ formatDateRange() }}</span>
-        </div>
-        
         <div class="gantt-container">
           <!-- Fixed column for truck names -->
           <div class="truck-column">
@@ -19,7 +15,10 @@
               :key="truck.id" 
               class="truck-row-fixed"
             >
-              <div class="truck-plate">{{ truck.plateNumber }}</div>
+              <div class="truck-plate">
+                <span class="full-plate">{{ truck.plateNumber }}</span>
+                <span class="short-plate">{{ truck.plateNumber.slice(-7) }}</span>
+              </div>
               <div class="truck-type">{{ truck.type }}</div>
             </div>
           </div>
@@ -37,14 +36,15 @@
                 :chart-start="visibleStartDate"
                 :chart-end="visibleEndDate"
                 precision="day"
-                width="500%"
+                width="auto"
                 bar-start="myBeginDate"
                 bar-end="myEndDate"
                 date-format="YYYY-MM-DD"
                 :grid="true"
                 row-height="60"
                 class="gantt-chart"
-                column-width="100"
+                :column-width="50"
+                :min-column-width="50"
               >
                 <!-- Custom header template to show only day numbers -->
                 <template #chart-header-cell="{ column }">
@@ -84,27 +84,18 @@
   
   // Calculate visible date range (180 days)
   const visibleStartDate = computed(() => {
-    // Start from 90 days before today
     const today = new Date();
     const start = new Date(today);
     start.setDate(start.getDate() - 90);
-    return start.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    return start.toISOString().split('T')[0];
   });
   
   const visibleEndDate = computed(() => {
-    // End 90 days after today
     const today = new Date();
     const end = new Date(today);
     end.setDate(end.getDate() + 90);
-    return end.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    return end.toISOString().split('T')[0];
   });
-  
-  // Format the date range for display
-  const formatDateRange = () => {
-    const today = new Date();
-    const month = today.toLocaleString('default', { month: 'long' });
-    return `${month} ${today.getFullYear()}`;
-  };
   
   // Fetch trucks from API
   const fetchTrucks = async () => {
@@ -112,10 +103,8 @@
     try {
       const response = await axios.get('/api/trucks');
       trucks.value = response.data;
-      console.log('Trucks loaded:', trucks.value);
     } catch (error) {
       console.error('Error fetching trucks:', error);
-      // Fallback for development/demo
       trucks.value = [
         { id: 1, plateNumber: 'ABC123', type: 'Semi-trailer' },
         { id: 2, plateNumber: 'XYZ789', type: 'Box truck' },
@@ -130,13 +119,9 @@
   const scrollToToday = () => {
     setTimeout(() => {
       if (ganttContainer.value && scrollbarContainer.value) {
-        // Calculate position to center today
-        // The chart is now 500% wide
         const scrollPosition = (ganttContainer.value.scrollWidth / 5) - (ganttContainer.value.clientWidth / 2);
         ganttContainer.value.scrollLeft = scrollPosition;
         scrollbarContainer.value.scrollLeft = scrollPosition;
-        
-        // Set up scroll synchronization
         setupScrollSync();
       }
     }, 200);
@@ -145,12 +130,10 @@
   // Synchronize scrolling between the scrollbar and the gantt chart
   const setupScrollSync = () => {
     if (ganttContainer.value && scrollbarContainer.value) {
-      // Sync scrollbar with gantt
       ganttContainer.value.addEventListener('scroll', () => {
         scrollbarContainer.value.scrollLeft = ganttContainer.value.scrollLeft;
       });
       
-      // Sync gantt with scrollbar
       scrollbarContainer.value.addEventListener('scroll', () => {
         ganttContainer.value.scrollLeft = scrollbarContainer.value.scrollLeft;
       });
@@ -169,21 +152,6 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-  }
-  
-  .calendar-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.75rem;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .date-range {
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: #333;
   }
   
   .gantt-container {
@@ -205,7 +173,7 @@
   }
   
   .truck-column-header {
-    height: 100px; /* Increased to account for scrollbar height */
+    height: 100px;
     border-bottom: 1px solid #ddd;
   }
   
@@ -223,10 +191,9 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-top: 16px; /* Add padding to account for scrollbar height */
+    padding-top: 16px;
   }
   
-  /* Scrollbar container at the top */
   .scrollbar-container {
     height: 16px;
     width: 100%;
@@ -234,7 +201,7 @@
     overflow-y: hidden;
     background: #f1f1f1;
     border-bottom: 1px solid #ddd;
-    position: absolute; /* Changed to absolute */
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
@@ -242,7 +209,8 @@
   }
   
   .scrollbar-content {
-    width: 500%; /* Match the width of the gantt chart */
+    /* Calculate width based on number of visible days (180) and column width (50px) */
+    width: 9000px;
     height: 1px;
   }
   
@@ -252,17 +220,14 @@
     overflow-x: auto;
     overflow-y: hidden;
     position: relative;
-    /* Hide the default scrollbar since we're using the top one */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   
-  /* Hide default scrollbar for Chrome, Safari and Opera */
   .gantt-scroll-container::-webkit-scrollbar {
     display: none;
   }
   
-  /* Custom scrollbar styling */
   .custom-scrollbar::-webkit-scrollbar {
     height: 16px;
   }
@@ -283,10 +248,11 @@
     background: #388E3C;
   }
   
-  /* Add some basic styling */
   :deep(.g-gantt-chart) {
+    position: relative;
     flex-grow: 1;
     min-height: 400px;
+    min-width: 9000px; /* Match the total width of all columns */
   }
   
   .loading {
@@ -314,7 +280,7 @@
   }
   
   .day-number {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: #333;
     text-align: center;
@@ -322,7 +288,7 @@
   
   :deep(.g-gantt-chart-header) {
     padding-top: 0 !important;
-    margin-top: 16px; /* Add margin to push content below scrollbar */
+    margin-top: 16px;
   }
   
   :deep(.g-gantt-chart-header-cell) {
@@ -331,5 +297,39 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 50px !important; /* Ensure minimum width is maintained */
+    width: 50px !important; /* Force fixed width */
+    flex-shrink: 0; /* Prevent column shrinking */
+  }
+  
+  .short-plate {
+    display: none;
+  }
+  
+  /* Responsive styles for small screens */
+  @media (max-width: 768px) {
+    .truck-column {
+      width: 75px;
+    }
+
+    .truck-row-fixed {
+      padding: 0 5px;
+    }
+
+    .full-plate {
+      display: none;
+    }
+
+    .short-plate {
+      display: inline;
+    }
+
+    .truck-type {
+      font-size: 10px;
+    }
+
+    .truck-plate {
+      font-size: 12px;
+    }
   }
   </style>
