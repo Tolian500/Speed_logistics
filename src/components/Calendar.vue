@@ -441,7 +441,7 @@ onMounted(() => {
   position: relative;
   flex-grow: 1;
   min-height: 400px;
-  min-width: 9000px; /* Match the total width of all columns */
+  min-width: 2500px; /* Match the total width of all columns */
 }
 
 .loading, .error, .no-data {

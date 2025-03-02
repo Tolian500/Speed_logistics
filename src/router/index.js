@@ -6,6 +6,7 @@ import JobView from '@/views/JobView.vue';
 import AddJobView from '@/views/AddJobView.vue';
 import EditJobView from '@/views/EditJobView.vue';
 import CalendarView from '@/views/CalendarView.vue';
+import CalendarNewView from '@/views/CalendarNewView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,6 +26,11 @@ const router = createRouter({
       path: '/calendar',
       name: 'calendar',
       component: CalendarView,
+    },
+    {
+      path: '/calendarnew',
+      name: 'calendarnew',
+      component: CalendarNewView,
     },
     {
       path: '/jobs/:id',

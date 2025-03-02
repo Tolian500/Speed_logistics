@@ -4,7 +4,7 @@
       "id": "1",
       "plateNumber": "CTR31250/NO9088R",
       "type": "Semi Trailer",
-      "currentJob": null,
+      "currentJob": "dcc9",
       "nextJobQueue": [],
       "company": {
         "name": "NewTek Solutions",
@@ -35,7 +35,7 @@
       "id": "3",
       "plateNumber": "NO9319X/NO8225X",
       "type": "Box Truck",
-      "currentJob": null,
+      "currentJob": "dcc9",
       "nextJobQueue": [],
       "company": {
         "name": "Express Transit",
@@ -361,8 +361,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-02-28T19:03:33.785Z",
-      "lastUpdate": "2025-03-01T12:23:32.655Z",
-      "status": "assigned"
+      "lastUpdate": "2025-03-02T13:08:38.091Z",
+      "status": "doing"
     },
     {
       "id": "0978",
