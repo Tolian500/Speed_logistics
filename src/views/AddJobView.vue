@@ -10,6 +10,7 @@ const form = reactive({
       startlocationCity: "",
       destinationCountry: "",
       destinationCity: "",
+      distance: "",
       client: "",
       cargoName: "",
       cargoDescription: "",
@@ -21,6 +22,7 @@ const form = reactive({
       lastUpdate: "",
       isLoadingDateStrict: false,
       isUnloadingDateStrict: false,
+      blink: "",
 });
 
 const toast = useToast();
@@ -42,6 +44,7 @@ const handleSubmit = async () => {
     startlocationCity: form.startlocationCity,
     destinationCountry: form.destinationCountry,
     destinationCity: form.destinationCity,
+    distance: form.distance ? parseInt(form.distance) : null,
     client: form.client,
     cargoName: form.cargoName,
     cargoDescription: form.cargoDescription,
@@ -52,13 +55,14 @@ const handleSubmit = async () => {
     isUnloadingDateStrict: form.isUnloadingDateStrict,
     realUnloadingDate: form.realUnloadingDate,
     addDate: new Date().toISOString(),
-    lastUpdate: new Date().toISOString()
+    lastUpdate: new Date().toISOString(),
+    blink: form.blink || null,
   };
 
   try {
-    const response = await axios.post('/api/jobs', newJob);
+    await axios.post('/api/jobs', newJob);
     toast.success('Job Added Successfully');
-    router.push(`/jobs/${response.data.id}`);
+    router.push('/jobs');
   } catch (error) {
     console.error('Error adding job', error);
     toast.error('Job Was Not Added');
@@ -131,6 +135,31 @@ const handleSubmit = async () => {
               class="border rounded w-full py-2 px-3"
               placeholder="City"
               required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Distance (km)</label>
+            <input
+              type="number"
+              v-model="form.distance"
+              id="distance"
+              name="distance"
+              class="border rounded w-full py-2 px-3"
+              placeholder="Enter distance in kilometers"
+              min="0"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Bitrix Link</label>
+            <input
+              type="url"
+              v-model="form.blink"
+              id="blink"
+              name="blink"
+              class="border rounded w-full py-2 px-3"
+              placeholder="Enter Bitrix Link URL"
             />
           </div>
 
