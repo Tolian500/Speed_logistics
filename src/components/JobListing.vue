@@ -234,46 +234,70 @@ const jobsForTrucks = computed(() => {
       <div class="p-2"> <!-- card padding -->
         <!-- Desktop Layout (md and up) - Single line -->
         <div class="hidden md:grid grid-cols-12 gap-2 items-center">
-          <!-- First column: Loading date (fixed width) -->
-          <div class="col-span-2 flex items-center">
-            <i class="pi pi-arrow-down text-blue-500 mr-1 flex-shrink-0"></i>
-            <span :class="{ 'font-bold': job.isLoadingDateStrict }" class="text-xs whitespace-nowrap">
-              {{ formatDateShort(job.planLoadingDate) }}
-              {{ job.isLoadingDateStrict ? '❗' : '' }}
-            </span>
+          <!-- First column: Loading dates (plan and real) -->
+          <div class="col-span-2 flex items-center gap-2">
+            <div class="flex items-center">
+              <i class="pi pi-arrow-down text-blue-500 mr-1 flex-shrink-0"></i>
+              <span :class="{ 'font-bold': job.isLoadingDateStrict }" class="text-xs whitespace-nowrap">
+                {{ formatDateShort(job.planLoadingDate) }}
+                {{ job.isLoadingDateStrict ? '❗' : '' }}
+              </span>
+            </div>
+            <div class="text-xs text-gray-500 whitespace-nowrap">
+              {{ job.realLoadingDate ? formatDateShort(job.realLoadingDate) : '-' }}
+            </div>
           </div>
           
-          <!-- Second column: Unloading date (fixed width) -->
-          <div class="col-span-2 flex items-center">
-            <i class="pi pi-arrow-up text-green-500 mr-1 flex-shrink-0"></i>
-            <span :class="{ 'font-bold': job.isUnloadingDateStrict }" class="text-xs whitespace-nowrap">
-              {{ formatDateShort(job.planUnloadingDate) }}
-              {{ job.isUnloadingDateStrict ? '❗' : '' }}
-            </span>
+          <!-- Second column: Unloading dates (plan and real) -->
+          <div class="col-span-2 flex items-center gap-2">
+            <div class="flex items-center">
+              <i class="pi pi-arrow-up text-green-500 mr-1 flex-shrink-0"></i>
+              <span :class="{ 'font-bold': job.isUnloadingDateStrict }" class="text-xs whitespace-nowrap">
+                {{ formatDateShort(job.planUnloadingDate) }}
+                {{ job.isUnloadingDateStrict ? '❗' : '' }}
+              </span>
+            </div>
+            <div class="text-xs text-gray-500 whitespace-nowrap">
+              {{ job.realUnloadingDate ? formatDateShort(job.realUnloadingDate) : '-' }}
+            </div>
           </div>
           
-          <!-- Third column: Client name (fixed width) -->
-          <div class="col-span-3 flex items-center">
-            <div 
-              v-if="jobStatus" 
-              class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
-              :class="{
-                'bg-yellow-300': jobStatus === 'pending',
-                'bg-blue-400': jobStatus === 'In Queue',
-                'bg-green-500': jobStatus === 'Current Job',
-                'bg-gray-500': jobStatus === 'completed'
-              }"
-            ></div>
-            <h3 class="text-sm font-bold text-green-600 truncate">
-              {{ job.client.length > 12 ? job.client.substring(0, 12) + '...' : job.client }}
-            </h3>
-          </div>
-          
-          <!-- Fourth column: Locations (flexible width) -->
-          <div class="col-span-4 flex items-center text-xs text-gray-600">
+          <!-- Third column: Locations (was Client name) -->
+          <div class="col-span-3 flex items-center text-xs text-gray-600">
             <span class="truncate max-w-[45%]">{{ job.startlocationCity }}</span>
             <i class="pi pi-arrow-right text-xs mx-1 flex-shrink-0"></i>
             <span class="truncate max-w-[45%]">{{ job.destinationCity }}</span>
+          </div>
+          
+          <!-- Fourth column: Client name and Bitrix link -->
+          <div class="col-span-4 flex items-center gap-2">
+            <div class="flex items-center min-w-0">
+              <div 
+                v-if="jobStatus" 
+                class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
+                :class="{
+                  'bg-yellow-300': jobStatus === 'pending',
+                  'bg-blue-400': jobStatus === 'In Queue',
+                  'bg-green-500': jobStatus === 'Current Job',
+                  'bg-gray-500': jobStatus === 'completed'
+                }"
+              ></div>
+              <h3 class="text-sm font-bold text-green-600 truncate">
+                {{ job.client }}
+              </h3>
+            </div>
+            <!-- Bitrix Link for laptop displays -->
+            <a 
+              v-if="job.blink" 
+              :href="job.blink" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="hidden md:flex items-center text-blue-600 hover:text-blue-800 text-xs"
+              @click.stop
+            >
+              <i class="pi pi-link text-blue-500 mr-1"></i>
+              <span>Bitrix</span>
+            </a>
           </div>
           
           <!-- Fifth column: Expand/Collapse button -->
@@ -352,6 +376,20 @@ const jobsForTrucks = computed(() => {
             <div class="mb-2 flex justify-between items-center">
               <span class="text-gray-600">{{ job.type }}</span>
               <span class="text-sm text-gray-500">ID: {{ job.id }}</span>
+            </div>
+
+            <!-- Bitrix Link - New section -->
+            <div v-if="job.blink" class="mb-3 flex items-center">
+              <i class="pi pi-link text-blue-500 mr-2"></i>
+              <a 
+                :href="job.blink" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="text-blue-600 hover:text-blue-800 hover:underline text-sm"
+                @click.stop
+              >
+                Bitrix Link
+              </a>
             </div>
 
             <!-- Status Field -->

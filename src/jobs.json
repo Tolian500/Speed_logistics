@@ -123,7 +123,8 @@
       "addDate": "2025-03-22T10:00:00Z",
       "lastUpdate": "2025-02-28T18:07:49.478Z",
       "status": "done",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "2",
@@ -144,7 +145,8 @@
       "addDate": "2025-03-15T07:00:00Z",
       "lastUpdate": "2025-03-01T12:50:31.596Z",
       "status": "done",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "3",
@@ -165,7 +167,8 @@
       "addDate": "2025-03-17T15:00:00Z",
       "lastUpdate": "2025-03-01T12:49:58.424Z",
       "status": "done",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "1872",
@@ -207,7 +210,8 @@
       "addDate": "2025-02-28T10:27:20.163Z",
       "lastUpdate": "2025-02-28T10:27:20.163Z",
       "status": "",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "4",
@@ -228,7 +232,8 @@
       "addDate": "2025-03-20T10:00:00Z",
       "lastUpdate": "2025-03-25T07:30:00Z",
       "status": "doing",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "5",
@@ -249,7 +254,8 @@
       "addDate": "2025-03-20T15:00:00Z",
       "lastUpdate": "2025-03-01T12:18:50.976Z",
       "status": "assigned",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "6",
@@ -270,7 +276,8 @@
       "addDate": "2025-03-21T08:00:00Z",
       "lastUpdate": "2025-03-01T12:48:48.435Z",
       "status": "done",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "7",
@@ -312,7 +319,8 @@
       "addDate": "2025-03-23T10:00:00Z",
       "lastUpdate": "2025-03-23T10:00:00Z",
       "status": "assigned",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "9",
@@ -333,7 +341,8 @@
       "addDate": "2025-03-24T11:00:00Z",
       "lastUpdate": "2025-03-24T11:00:00Z",
       "status": "assigned",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "10",
@@ -375,7 +384,8 @@
       "addDate": "2025-02-28T19:03:33.785Z",
       "lastUpdate": "2025-03-02T13:08:38.091Z",
       "status": "doing",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "0978",
@@ -396,7 +406,8 @@
       "addDate": "2025-02-28T21:18:18.670Z",
       "lastUpdate": "2025-02-28T21:19:08.388Z",
       "status": "assigned",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "1845",
@@ -417,7 +428,8 @@
       "addDate": "2025-03-01T12:12:18.926Z",
       "lastUpdate": "2025-03-01T12:18:51.006Z",
       "status": "doing",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "4bf6",
@@ -438,7 +450,8 @@
       "addDate": "2025-03-01T12:43:02.138Z",
       "lastUpdate": "2025-03-01T12:43:02.138Z",
       "status": "",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     },
     {
       "id": "1def",
@@ -460,7 +473,8 @@
       "lastUpdate": "2025-03-01T12:59:45.819Z",
       "status": "done",
       "deliveredBy": "CTR31250/NO9088R",
-      "distance": 1000
+      "distance": 1000,
+      "blink": "https://www.google.com"
     }
   ]
 }
