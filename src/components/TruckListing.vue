@@ -96,7 +96,7 @@ const submitRealUnloadingDate = async () => {
   completeJobModal.value = true;
 };
 
-// New function to complete the job
+// Function to complete the job
 const completeJob = async () => {
   if (!selectedRealUnloadingDate.value) return;
   
@@ -291,48 +291,113 @@ const toggleFutureJobs = (event) => {
     >
       <div class="p-3">
         <!-- Short Version - Always Visible -->
-        <div class="flex justify-between items-start">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 flex-1 min-w-0">
-            <!-- Truck Info -->
-            <div class="flex items-center gap-2">
-              <h3 class="text-l font-bold truncate">{{ truck.plateNumber }}</h3>
-              <template v-if="job && !job.realLoadingDate && !job.realUnloadingDate">
-                <i class="pi pi-caret-right text-yellow-500"></i>
-              </template>
-              <template v-else-if="job && job.realLoadingDate">
-                <div class="flex gap-0.5">
-                  <i class="pi pi-caret-right text-green-500"></i>
-                  <i class="pi pi-caret-right text-green-500"></i>
-                  <i class="pi pi-caret-right text-green-500"></i>
-                </div>
-              </template>
-              <template v-else>
-                <i class="pi pi-caret-right text-gray-400"></i>
-              </template>
-            </div>
-            
-            <!-- Job Info (if exists) -->
-            <div v-if="job" class="flex items-center text-sm relative min-w-0 flex-1">
-              <div class="flex items-center gap-4 flex-1 min-w-0 sm:pr-20 pr-16">
-                <span class="text-green-600 font-medium truncate">{{ job.client }}</span>
-                <div class="flex items-center gap-2 text-gray-600 truncate">
+        <div class="flex justify-between items-start w-full">
+          <!-- Grid and mobile content wrapper -->
+          <div class="flex-1 min-w-0"> <!-- Added min-w-0 to prevent content overflow -->
+            <!-- Grid structure -->
+            <div class="hidden md:grid grid-cols-7 gap-2 w-full items-center">
+              <!-- Column 1: Truck plate - increased width -->
+              <div class="w-32 flex-shrink-0">
+                <h3 class="text-l font-bold">{{ truck.plateNumber }}</h3>
+              </div>
+
+              <!-- Column 2: Status arrows - increased width -->
+              <div class="w-20 flex-shrink-0">
+                <template v-if="job && !job.realLoadingDate && !job.realUnloadingDate">
+                  <i class="pi pi-caret-right text-yellow-500"></i>
+                </template>
+                <template v-else-if="job && job.realLoadingDate">
+                  <div class="flex gap-0.5">
+                    <i class="pi pi-caret-right text-green-500"></i>
+                    <i class="pi pi-caret-right text-green-500"></i>
+                    <i class="pi pi-caret-right text-green-500"></i>
+                  </div>
+                </template>
+                <template v-else>
+                  <i class="pi pi-caret-right text-gray-400"></i>
+                </template>
+              </div>
+
+              <!-- Column 3: Client name - increased width -->
+              <div class="w-40 flex-shrink-0">
+                <span v-if="job" class="text-green-600 font-medium truncate block">{{ job.client }}</span>
+              </div>
+
+              <!-- Column 4: Locations - with minimum width -->
+              <div class="min-w-[200px] flex-1">
+                <div v-if="job" class="flex items-center gap-2 text-gray-600">
                   <span class="truncate">{{ job.startlocationCity }}</span>
                   <i class="pi pi-arrow-right text-xs flex-shrink-0"></i>
                   <span class="truncate">{{ job.destinationCity }}</span>
                 </div>
               </div>
-              <span class="text-gray-500 font-medium absolute right-0 whitespace-nowrap">
-                {{ job.realLoadingDate ? formatDate(job.realLoadingDate).getDate().toString().padStart(2, '0') + '.' + (formatDate(job.realLoadingDate).getMonth() + 1).toString().padStart(2, '0') : 
-                   formatDate(job.planLoadingDate).getDate().toString().padStart(2, '0') + '.' + (formatDate(job.planLoadingDate).getMonth() + 1).toString().padStart(2, '0') }}
-              </span>
+
+              <!-- Column 5: Distance - adjusted width -->
+              <div class="w-24 text-right flex-shrink-0">
+                <span v-if="job && job.distance" class="text-gray-500">{{ job.distance }}km</span>
+              </div>
+
+              <!-- Column 6: Load dates - increased width -->
+              <div class="w-44 flex-shrink-0">
+                <span v-if="job" class="text-gray-500 font-medium whitespace-nowrap">
+                  {{ formatDisplayDateShort(job.planLoadingDate) }}/{{ job.realLoadingDate ? formatDisplayDateShort(job.realLoadingDate) : '-' }}
+                </span>
+              </div>
+
+              <!-- Column 7: Unload date - increased width -->
+              <div class="w-32 flex-shrink-0">
+                <span v-if="job" class="text-gray-500 font-medium whitespace-nowrap">
+                  {{ formatDisplayDateShort(job.planUnloadingDate) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Mobile view - restructured -->
+            <div class="md:hidden flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <h3 class="text-l font-bold">{{ truck.plateNumber }}</h3>
+                  <template v-if="job && !job.realLoadingDate && !job.realUnloadingDate">
+                    <i class="pi pi-caret-right text-yellow-500"></i>
+                  </template>
+                  <template v-else-if="job && job.realLoadingDate">
+                    <div class="flex gap-0.5">
+                      <i class="pi pi-caret-right text-green-500"></i>
+                      <i class="pi pi-caret-right text-green-500"></i>
+                      <i class="pi pi-caret-right text-green-500"></i>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <i class="pi pi-caret-right text-gray-400"></i>
+                  </template>
+                </div>
+              </div>
+              
+              <div v-if="job" class="flex items-center text-sm w-full relative">
+                <div class="flex items-center gap-4 flex-1 min-w-0 pr-16">
+                  <span class="text-green-600 font-medium truncate">{{ job.client }}</span>
+                  <div class="flex items-center gap-2 text-gray-600 truncate">
+                    <span class="truncate">{{ job.startlocationCity }}</span>
+                    <i class="pi pi-arrow-right text-xs flex-shrink-0"></i>
+                    <span class="truncate">{{ job.destinationCity }}</span>
+                  </div>
+                </div>
+                <span class="text-gray-500 font-medium absolute right-0 whitespace-nowrap">
+                  {{ job.realLoadingDate ? formatDisplayDateShort(job.realLoadingDate) : formatDisplayDateShort(job.planLoadingDate) }}
+                </span>
+              </div>
             </div>
           </div>
-          <i 
-            :class="[
-              showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
-              'text-blue-500 text-xl transition-transform flex-shrink-0 ml-2'
-            ]"
-          ></i>
+
+          <!-- Expand button - now properly contained -->
+          <div class="flex-shrink-0 ml-2">
+            <i 
+              :class="[
+                showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down',
+                'text-blue-500 text-xl transition-transform'
+              ]"
+            ></i>
+          </div>
         </div>
 
         <!-- Extended Details - Shown when showDetails is true -->

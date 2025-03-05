@@ -122,7 +122,8 @@
       "realUnloadingDate": "2025-03-01T09:00:00.000Z",
       "addDate": "2025-03-22T10:00:00Z",
       "lastUpdate": "2025-02-28T18:07:49.478Z",
-      "status": "done"
+      "status": "done",
+      "distance": 1000
     },
     {
       "id": "2",
@@ -142,7 +143,8 @@
       "realUnloadingDate": "2025-03-01T09:00:00.000Z",
       "addDate": "2025-03-15T07:00:00Z",
       "lastUpdate": "2025-03-01T12:50:31.596Z",
-      "status": "done"
+      "status": "done",
+      "distance": 1000
     },
     {
       "id": "3",
@@ -162,7 +164,8 @@
       "realUnloadingDate": "2025-02-28T09:00:00.000Z",
       "addDate": "2025-03-17T15:00:00Z",
       "lastUpdate": "2025-03-01T12:49:58.424Z",
-      "status": "done"
+      "status": "done",
+      "distance": 1000
     },
     {
       "id": "1872",
@@ -182,7 +185,8 @@
       "realUnloadingDate": "2025-03-01T09:00:00.000Z",
       "addDate": "2025-02-28T09:31:55.016Z",
       "lastUpdate": "2025-03-01T12:49:38.553Z",
-      "status": "done"
+      "status": "done",
+      "distance": 1000
     },
     {
       "id": "e939",
@@ -202,7 +206,8 @@
       "realUnloadingDate": "2025-03-03T15:00:00.000Z",
       "addDate": "2025-02-28T10:27:20.163Z",
       "lastUpdate": "2025-02-28T10:27:20.163Z",
-      "status": ""
+      "status": "",
+      "distance": 1000
     },
     {
       "id": "4",
@@ -222,7 +227,8 @@
       "realUnloadingDate": null,
       "addDate": "2025-03-20T10:00:00Z",
       "lastUpdate": "2025-03-25T07:30:00Z",
-      "status": "doing"
+      "status": "doing",
+      "distance": 1000
     },
     {
       "id": "5",
@@ -242,7 +248,8 @@
       "realUnloadingDate": null,
       "addDate": "2025-03-20T15:00:00Z",
       "lastUpdate": "2025-03-01T12:18:50.976Z",
-      "status": "assigned"
+      "status": "assigned",
+      "distance": 1000
     },
     {
       "id": "6",
@@ -262,7 +269,8 @@
       "realUnloadingDate": "2025-03-28T11:30:00.000Z",
       "addDate": "2025-03-21T08:00:00Z",
       "lastUpdate": "2025-03-01T12:48:48.435Z",
-      "status": "done"
+      "status": "done",
+      "distance": 1000
     },
     {
       "id": "7",
@@ -282,7 +290,8 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-22T09:00:00Z",
       "lastUpdate": "2025-03-22T09:00:00Z",
-      "status": "assigned"
+      "status": "assigned",
+      "distance": 1000
     },
     {
       "id": "8",
@@ -302,7 +311,8 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-23T10:00:00Z",
       "lastUpdate": "2025-03-23T10:00:00Z",
-      "status": "assigned"
+      "status": "assigned",
+      "distance": 1000
     },
     {
       "id": "9",
@@ -322,7 +332,8 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-24T11:00:00Z",
       "lastUpdate": "2025-03-24T11:00:00Z",
-      "status": "assigned"
+      "status": "assigned",
+      "distance": 1000
     },
     {
       "id": "10",
@@ -342,7 +353,8 @@
       "realUnloadingDate": null,
       "addDate": "2025-03-25T12:00:00Z",
       "lastUpdate": "2025-03-30T08:15:00Z",
-      "status": "doing"
+      "status": "doing",
+      "distance": 1000
     },
     {
       "id": "dcc9",
@@ -362,7 +374,8 @@
       "realUnloadingDate": "",
       "addDate": "2025-02-28T19:03:33.785Z",
       "lastUpdate": "2025-03-02T13:08:38.091Z",
-      "status": "doing"
+      "status": "doing",
+      "distance": 1000
     },
     {
       "id": "0978",
@@ -382,7 +395,8 @@
       "realUnloadingDate": "",
       "addDate": "2025-02-28T21:18:18.670Z",
       "lastUpdate": "2025-02-28T21:19:08.388Z",
-      "status": "assigned"
+      "status": "assigned",
+      "distance": 1000
     },
     {
       "id": "1845",
@@ -402,7 +416,8 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-01T12:12:18.926Z",
       "lastUpdate": "2025-03-01T12:18:51.006Z",
-      "status": "doing"
+      "status": "doing",
+      "distance": 1000
     },
     {
       "id": "4bf6",
@@ -421,7 +436,9 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-03-01T12:43:02.138Z",
-      "lastUpdate": "2025-03-01T12:43:02.138Z"
+      "lastUpdate": "2025-03-01T12:43:02.138Z",
+      "status": "",
+      "distance": 1000
     },
     {
       "id": "1def",
@@ -442,7 +459,8 @@
       "addDate": "2025-03-01T12:59:27.796Z",
       "lastUpdate": "2025-03-01T12:59:45.819Z",
       "status": "done",
-      "deliveredBy": "CTR31250/NO9088R"
+      "deliveredBy": "CTR31250/NO9088R",
+      "distance": 1000
     }
   ]
 }
