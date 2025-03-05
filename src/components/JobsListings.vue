@@ -144,6 +144,28 @@ const limitedCompletedJobs = computed(() => {
   return completedJobs.value.slice(0, completedJobsLimit);
 });
 
+// Add a function to refresh jobs data
+const refreshJobs = async () => {
+  state.isLoading = true;
+  try {
+    const jobsResponse = await axios.get('/api/jobs');
+    state.jobs = jobsResponse.data;
+  } catch (error) {
+    console.error('Error fetching data', error);
+  } finally {
+    state.isLoading = false;
+  }
+};
+
+// Add the handler function
+const handleAssignmentUpdate = (updates) => {
+  // Update the jobs data directly
+  const jobIndex = state.jobs.findIndex(j => j.id === updates.updatedJob.id);
+  if (jobIndex !== -1) {
+    state.jobs[jobIndex] = updates.updatedJob;
+  }
+};
+
 onMounted(async () => {
   try {
     const jobsResponse = await axios.get('/api/jobs');
@@ -207,7 +229,7 @@ onMounted(async () => {
             </button>
           </div>
           <div class="grid grid-cols-1 gap-3">
-            <JobListing v-for="job in pendingJobs" :key="job.id" :job="job" />
+            <JobListing v-for="job in pendingJobs" :key="job.id" :job="job" @assignmentUpdated="handleAssignmentUpdate" />
           </div>
         </div>
 
@@ -284,7 +306,7 @@ onMounted(async () => {
           
           <!-- Job listings -->
       <div v-else class="grid grid-cols-1 gap-3">
-            <JobListing v-for="job in filteredActiveJobs" :key="job.id" :job="job" />
+            <JobListing v-for="job in filteredActiveJobs" :key="job.id" :job="job" @assignmentUpdated="handleAssignmentUpdate" />
           </div>
         </div>
 
@@ -325,7 +347,7 @@ onMounted(async () => {
             </button>
           </div>
           <div class="grid grid-cols-1 gap-3">
-            <JobListing v-for="job in limitedCompletedJobs" :key="job.id" :job="job" />
+            <JobListing v-for="job in limitedCompletedJobs" :key="job.id" :job="job" @assignmentUpdated="handleAssignmentUpdate" />
           </div>
           
           <!-- Show All / Show Less button -->

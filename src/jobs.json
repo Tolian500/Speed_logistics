@@ -4,7 +4,7 @@
       "id": "1",
       "plateNumber": "CTR31250/NO9088R",
       "type": "Semi Trailer",
-      "currentJob": "dcc9",
+      "currentJob": null,
       "nextJobQueue": [],
       "company": {
         "name": "NewTek Solutions",
@@ -17,13 +17,8 @@
       "id": "2",
       "plateNumber": "NO667AC/NO580AF",
       "type": "Tief bet",
-      "currentJob": "1845",
-      "nextJobQueue": [
-        "dcc9",
-        "0978",
-        "5",
-        "4"
-      ],
+      "currentJob": null,
+      "nextJobQueue": [],
       "company": {
         "name": "Dolor Cloud",
         "description": "Dolor Cloud is a leading technology company specializing in digital solutions for businesses of all sizes. With a focus on innovation and customer satisfaction, we are committed to delivering cutting-edge products and services.",
@@ -35,7 +30,7 @@
       "id": "3",
       "plateNumber": "NO9319X/NO8225X",
       "type": "Box Truck",
-      "currentJob": "dcc9",
+      "currentJob": null,
       "nextJobQueue": [],
       "company": {
         "name": "Express Transit",
@@ -48,10 +43,8 @@
       "id": "4",
       "plateNumber": "NO6426X/NO8125X",
       "type": "Mega Trailer",
-      "currentJob": "4",
-      "nextJobQueue": [
-        "7"
-      ],
+      "currentJob": "",
+      "nextJobQueue": [],
       "company": {
         "name": "Mega Trans",
         "description": "Mega Trans specializes in oversized and special cargo transportation across Europe. Our fleet of mega trailers ensures safe delivery of large-scale equipment.",
@@ -63,10 +56,8 @@
       "id": "5",
       "plateNumber": "NO0435Y/NO032AN",
       "type": "Refrigerated Trailer",
-      "currentJob": "5",
-      "nextJobQueue": [
-        "8"
-      ],
+      "currentJob": "dcc9",
+      "nextJobQueue": [],
       "company": {
         "name": "Fresh Logistics",
         "description": "Fresh Logistics provides temperature-controlled transportation solutions for perishable goods. Our modern fleet ensures product quality throughout the journey.",
@@ -79,9 +70,7 @@
       "plateNumber": "CTR41035/NO680CG",
       "type": "Curtainsider",
       "currentJob": "",
-      "nextJobQueue": [
-        "9"
-      ],
+      "nextJobQueue": [],
       "company": {
         "name": "Swift Cargo",
         "description": "Swift Cargo offers flexible loading solutions with our curtainsider fleet. We specialize in easy-access loading and unloading for various cargo types.",
@@ -93,7 +82,7 @@
       "id": "7",
       "plateNumber": "WR008AM/NO410AC",
       "type": "Container Carrier",
-      "currentJob": "10",
+      "currentJob": "",
       "nextJobQueue": [],
       "company": {
         "name": "Container Solutions",
@@ -231,7 +220,7 @@
       "realUnloadingDate": null,
       "addDate": "2025-03-20T10:00:00Z",
       "lastUpdate": "2025-03-25T07:30:00Z",
-      "status": "doing",
+      "status": "",
       "distance": 1000,
       "blink": "https://www.google.com"
     },
@@ -253,7 +242,7 @@
       "realUnloadingDate": null,
       "addDate": "2025-03-20T15:00:00Z",
       "lastUpdate": "2025-03-01T12:18:50.976Z",
-      "status": "assigned",
+      "status": "",
       "distance": 1000,
       "blink": "https://www.google.com"
     },
@@ -297,7 +286,7 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-22T09:00:00Z",
       "lastUpdate": "2025-03-22T09:00:00Z",
-      "status": "assigned",
+      "status": "",
       "distance": 1000
     },
     {
@@ -318,7 +307,7 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-23T10:00:00Z",
       "lastUpdate": "2025-03-23T10:00:00Z",
-      "status": "assigned",
+      "status": "",
       "distance": 1000,
       "blink": "https://www.google.com"
     },
@@ -340,7 +329,7 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-24T11:00:00Z",
       "lastUpdate": "2025-03-24T11:00:00Z",
-      "status": "assigned",
+      "status": "",
       "distance": 1000,
       "blink": "https://www.google.com"
     },
@@ -361,8 +350,8 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": null,
       "addDate": "2025-03-25T12:00:00Z",
-      "lastUpdate": "2025-03-30T08:15:00Z",
-      "status": "doing",
+      "lastUpdate": "2025-03-05T21:04:08.451Z",
+      "status": "",
       "distance": 1000
     },
     {
@@ -382,7 +371,7 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-02-28T19:03:33.785Z",
-      "lastUpdate": "2025-03-02T13:08:38.091Z",
+      "lastUpdate": "2025-03-05T21:13:31.333Z",
       "status": "doing",
       "distance": 1000,
       "blink": "https://www.google.com"
@@ -405,7 +394,7 @@
       "realUnloadingDate": "",
       "addDate": "2025-02-28T21:18:18.670Z",
       "lastUpdate": "2025-02-28T21:19:08.388Z",
-      "status": "assigned",
+      "status": "",
       "distance": 1000,
       "blink": "https://www.google.com"
     },
@@ -427,7 +416,7 @@
       "realUnloadingDate": "",
       "addDate": "2025-03-01T12:12:18.926Z",
       "lastUpdate": "2025-03-01T12:18:51.006Z",
-      "status": "doing",
+      "status": "",
       "distance": 1000,
       "blink": "https://www.google.com"
     },
@@ -515,8 +504,9 @@
       "isUnloadingDateStrict": false,
       "realUnloadingDate": "",
       "addDate": "2025-03-05T21:01:56.348Z",
-      "lastUpdate": "2025-03-05T21:01:56.348Z",
-      "blink": "https://pl.wikipedia.org/wiki/Bari"
+      "lastUpdate": "2025-03-05T21:04:08.506Z",
+      "blink": "https://pl.wikipedia.org/wiki/Bari",
+      "status": ""
     }
   ]
 }

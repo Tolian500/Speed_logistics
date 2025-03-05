@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineProps, ref, computed, watch, onMounted } from 'vue';
+import { defineProps, ref, computed, watch, onMounted, defineEmits } from 'vue';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -61,11 +61,35 @@ const assignJobToTruck = async () => {
   isLoading.value = true;
   
   try {
+    // First, if the job is currently assigned, remove it from the previous truck
+    if (assignedTruck.value) {
+      const previousTruck = { ...assignedTruck.value };
+      
+      // Remove job from current job if it's there
+      if (previousTruck.currentJob === props.job.id) {
+        previousTruck.currentJob = null;
+      }
+      
+      // Remove job from queue if it's there
+      if (previousTruck.nextJobQueue.includes(props.job.id)) {
+        previousTruck.nextJobQueue = previousTruck.nextJobQueue.filter(id => id !== props.job.id);
+      }
+      
+      // Update the previous truck in the database and local state
+      await axios.put(`/api/trucks/${previousTruck.id}`, previousTruck);
+      // Update the truck in local state
+      const prevTruckIndex = trucks.value.findIndex(t => t.id === previousTruck.id);
+      if (prevTruckIndex !== -1) {
+        trucks.value[prevTruckIndex] = previousTruck;
+      }
+    }
+
     // Get current truck data and all jobs for comparison
     const truckResponse = await axios.get(`/api/trucks/${selectedTruck.value}`);
     const truck = truckResponse.data;
     const jobsResponse = await axios.get('/api/jobs');
     const allJobs = jobsResponse.data;
+    allJobs.value = jobsResponse.data; // Update all jobs data
     
     // Find current job data if exists
     const currentJobData = truck.currentJob ? allJobs.find(job => job.id === truck.currentJob) : null;
@@ -76,35 +100,36 @@ const assignJobToTruck = async () => {
     
     // Determine job placement based on dates and current job
     if (!truck.currentJob) {
-      // If no current job, assign directly
       updatedTruck.currentJob = newJobData.id;
       newJobStatus = "doing";
     } else {
-      // Compare dates to decide placement
       const currentJobDate = currentJobData?.planLoadingDate ? new Date(currentJobData.planLoadingDate) : null;
       const newJobDate = newJobData?.planLoadingDate ? new Date(newJobData.planLoadingDate) : null;
       
       if (currentJobDate && newJobDate && newJobDate < currentJobDate) {
-        // If new job starts earlier, move current job to queue
         updatedTruck.nextJobQueue = [truck.currentJob, ...truck.nextJobQueue];
         updatedTruck.currentJob = newJobData.id;
         newJobStatus = "doing";
         
-        // Update status of the previous current job
         if (currentJobData && currentJobData.status === "doing") {
-          await axios.put(`/api/jobs/${currentJobData.id}`, {
+          const updatedCurrentJob = {
             ...currentJobData,
             status: "assigned",
             lastUpdate: new Date().toISOString()
-          });
+          };
+          await axios.put(`/api/jobs/${currentJobData.id}`, updatedCurrentJob);
+          // Update the job in local state
+          const jobIndex = allJobs.value.findIndex(j => j.id === currentJobData.id);
+          if (jobIndex !== -1) {
+            allJobs.value[jobIndex] = updatedCurrentJob;
+          }
         }
       } else {
-        // Add to queue if new job starts later
         updatedTruck.nextJobQueue = [...truck.nextJobQueue, newJobData.id];
       }
     }
     
-    // Sort nextJobQueue by planLoadingDate if it exists
+    // Sort nextJobQueue
     if (updatedTruck.nextJobQueue && updatedTruck.nextJobQueue.length > 0) {
       const sortedQueue = [...updatedTruck.nextJobQueue];
       sortedQueue.sort((a, b) => {
@@ -120,10 +145,15 @@ const assignJobToTruck = async () => {
       updatedTruck.nextJobQueue = sortedQueue;
     }
     
-    // Update truck data
+    // Update truck data in database and local state
     await axios.put(`/api/trucks/${selectedTruck.value}`, updatedTruck);
+    // Update the truck in local state
+    const truckIndex = trucks.value.findIndex(t => t.id === selectedTruck.value);
+    if (truckIndex !== -1) {
+      trucks.value[truckIndex] = updatedTruck;
+    }
     
-    // Update new job status
+    // Update job status
     if (props.job.status !== "doing") {
       const updatedJob = {
         ...props.job,
@@ -138,6 +168,13 @@ const assignJobToTruck = async () => {
     const actionText = newJobStatus === "doing" ? "set as current job" : "added to queue";
     toast.success(`Job successfully ${actionText} for truck ${truck.plateNumber}`);
     closeAssignModal();
+    
+    // Instead of emitting for a full refresh, emit the updated data
+    emit('assignmentUpdated', {
+      updatedJob: props.job,
+      updatedTrucks: trucks.value,
+      allJobs: allJobs.value
+    });
     
   } catch (error) {
     console.error('Error assigning job to truck:', error);
@@ -217,6 +254,9 @@ const jobsForTrucks = computed(() => {
   });
   return jobsMap;
 });
+
+// Add emit to the component setup
+const emit = defineEmits(['assignmentUpdated']);
 </script>
 
 <template>
